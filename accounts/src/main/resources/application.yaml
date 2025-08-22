@@ -1,0 +1,31 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: accounts  \
+  datasource:
+    url: jdbc:h2:mem:accountsdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/bank
+  keycloak:
+    realm: bank
+    auth-server-url: http://localhost:8180
+    resource: accounts
+    credentials:
+      secret: p41J94HutoQCtg3P0GedzMetth3n4PTN

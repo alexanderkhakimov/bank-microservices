@@ -1,0 +1,13 @@
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'  // Для REST API
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'  // Для базы данных
+    implementation 'org.springframework.boot:spring-boot-starter-security'  // Для security
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'  // Для JWT валидации
+    implementation 'org.keycloak:keycloak-spring-boot-starter:23.0.0'
+    runtimeOnly 'com.h2database:h2'  // H2 для dev
+    // Позже добавим 'org.postgresql:postgresql' для prod
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+}

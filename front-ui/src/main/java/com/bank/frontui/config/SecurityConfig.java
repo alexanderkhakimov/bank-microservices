@@ -30,9 +30,11 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
+                        .logoutRequestMatcher(request ->
+                                request.getServletPath().equals("/logout") &&
+                                        request.getMethod().equalsIgnoreCase("GET")
+                        )
                         .logoutSuccessUrl("/login")
-                        .permitAll()
                 )
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/h2-console/**")

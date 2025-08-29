@@ -28,4 +28,4 @@ spring:
     auth-server-url: http://localhost:8180
     resource: accounts
     credentials:
-      secret: p41J94HutoQCtg3P0GedzMetth3n4PTN
+      secret: oflL9KgT18jd7iRwLDBFIFDymfqQriM6

@@ -32,3 +32,9 @@ spring:
 
   thymeleaf:
     cache: false
+keycloak:
+  admin:
+    server-url: http://localhost:8180
+    realm: bank
+    client-id: admin-cli
+    client-secret: btJdDbNA75MMsTDRybf25u8fGKZwQTtz

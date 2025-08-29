@@ -1,0 +1,17 @@
+package com.bank.frontui.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import lombok.Builder;
+
+import java.time.LocalDate;
+
+@Builder
+public record UpdateRequest(
+        @NotNull String name,
+        @NotNull String login,
+        @Email String email,
+        @NotNull @Past LocalDate birthdate
+) {
+}

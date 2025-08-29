@@ -1,16 +1,14 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.4' apply false  // Версия Spring Boot для Java 21
+    id 'org.springframework.boot' version '3.5.4' apply false
     id 'io.spring.dependency-management' version '1.1.4' apply false
 }
 
-group = 'com.bank'
-version = '1.0.0'
-
 allprojects {
-    repositories {
-        mavenCentral()
-    }
+
+
 }
 
 subprojects {
@@ -18,10 +16,32 @@ subprojects {
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
-    sourceCompatibility = '21'
-    targetCompatibility = '21'
+    group = 'com.bank'
+    version = '1.0.0'
+
+    repositories {
+        mavenCentral()
+    }
+
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:3.5.4"
+        }
+    }
+
+    ext{
+        lombokVersion = "1.18.30"
+        keyclock = "23.0.0"
+    }
 
     dependencies {
+        compileOnly "org.projectlombok:lombok:${lombokVersion}"
+        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+        implementation "org.keycloak:keycloak-spring-boot-starter:${keyclock}"
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
         implementation 'org.springframework.boot:spring-boot-starter'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
     }

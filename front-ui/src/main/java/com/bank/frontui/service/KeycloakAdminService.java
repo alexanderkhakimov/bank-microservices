@@ -18,27 +18,16 @@ import java.util.Map;
 @Service
 @Data
 public class KeycloakAdminService {
-    @Value("${keycloak.admin.server-url}")
-    private String serverUrl;
-
     @Value("${keycloak.admin.realm}")
     private String realm;
 
-    @Value("${keycloak.admin.client-id}")
-    private String clientId;
+    private final Keycloak keycloak;
 
-    @Value("${keycloak.admin.client-secret}")
-    private String clientSecret;
-
+    public KeycloakAdminService(Keycloak keycloak) {
+        this.keycloak = keycloak;
+    }
 
     public String registerUser(String login, String password, String name, String email, LocalDate dob) {
-        var keycloak = KeycloakBuilder.builder()
-                .serverUrl(serverUrl)
-                .realm("master")
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .grantType("client_credentials")
-                .build();
 
         var user = new UserRepresentation();
         user.setUsername(login);
@@ -61,9 +50,29 @@ public class KeycloakAdminService {
                         String path = response.getLocation().getPath();
                         return path.substring(path.lastIndexOf("/") + 1);
                     } else {
-                        throw new RuntimeException("Failed to register user: " + response.getStatusInfo().getReasonPhrase());
+                        throw new RuntimeException("Ошибка при регистрации в Keycloak: " + response.getStatusInfo().getReasonPhrase());
                     }
                 })
                 .block();
+    }
+
+    public void updatePasswordKeycloak(String login, String password) {
+        var users = keycloak.realm(realm).users().search(login, true);
+        if (users.isEmpty()) {
+            throw new RuntimeException("Пользователь %s не найден".formatted(login));
+        }
+        var userRepresentation = users.get(0);
+        var userId = userRepresentation.getId();
+        var credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(password);
+        credential.setTemporary(false);
+
+        try {
+            keycloak.realm(realm).users().get(userId).resetPassword(credential);
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при регистрации в Keycloak: " + e.getMessage());
+        }
+
     }
 }

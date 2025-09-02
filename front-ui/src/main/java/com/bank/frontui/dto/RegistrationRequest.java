@@ -11,6 +11,7 @@ import java.time.LocalDate;
 public record RegistrationRequest(
         @NotBlank String keycloakId,
         @NotBlank String login,
+        @NotBlank String password,
         @NotBlank String name,
         @Email String email,
        @NotNull @Past LocalDate birthdate

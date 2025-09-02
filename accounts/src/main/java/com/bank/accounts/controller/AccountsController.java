@@ -3,6 +3,7 @@ package com.bank.accounts.controller;
 
 import com.bank.accounts.dto.BalanceRequest;
 import com.bank.accounts.dto.RegistrationRequest;
+import com.bank.accounts.dto.UpdatePasswordRequest;
 import com.bank.accounts.dto.UpdateRequest;
 import com.bank.accounts.model.AccountBalance;
 import com.bank.accounts.model.Currency;
@@ -28,6 +29,7 @@ public class AccountsController {
     public ResponseEntity<UserAccount> register(@Valid @RequestBody RegistrationRequest request) {
         var account = accountService.creatUserAccount(
                 request.keycloakId(),
+                request.password(),
                 request.login(),
                 request.name(),
                 request.email(),
@@ -53,6 +55,13 @@ public class AccountsController {
                 request.birthdate()
         );
         return ResponseEntity.ok(account);
+    }
+
+    @PostMapping("/me/updatePassword")
+    public ResponseEntity<Void> updatePassword(@RequestBody UpdatePasswordRequest request) {
+        accountService.updatePassword(request.login(), request.password());
+        return ResponseEntity.ok().build();
+
     }
 
     @PostMapping("/me/balances")

@@ -33,6 +33,8 @@ public class UserAccount {
     @Email
     private String email;
 
+    @NotBlank
+    String password;
     @NotNull
     private LocalDate birthdate;
 

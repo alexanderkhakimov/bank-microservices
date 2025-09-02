@@ -1,6 +1,7 @@
 package com.bank.frontui.service;
 
 import com.bank.frontui.dto.RegistrationRequest;
+import com.bank.frontui.dto.UpdatePasswordRequest;
 import com.bank.frontui.model.UserAccount;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,9 +27,10 @@ public class AccountClient {
 //
 //    }
 //
-    public UserAccount register(String keycloakId, String login, String name, String email, LocalDate birthdate) {
-        RegistrationRequest request = RegistrationRequest.builder()
+    public UserAccount register(String keycloakId, String password, String login, String name, String email, LocalDate birthdate) {
+        var request = RegistrationRequest.builder()
                 .keycloakId(keycloakId)
+                .password(password)
                 .login(login)
                 .name(name)
                 .email(email)
@@ -41,15 +43,20 @@ public class AccountClient {
                 .bodyToMono(UserAccount.class)
                 .block();
     }
-//
-//    public UserAccount updateAccount(OidcUser  authentication, String name, String email, LocalDate birthdate) {
-//        UpdateRequest request = UpdateRequest.builder()
-//                .name(name)
-//                .email(email)
-//                .birthdate(birthdate)
-//                .build();
-//        return
-//    }
+
+    public UserAccount updatePassword(String login, String password) {
+        var request = UpdatePasswordRequest.builder()
+                .login(login)
+                .password(password)
+                .build();
+
+        return webClient.post()
+                .uri(accountsApiUrl + "/me/updatePassword")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(UserAccount.class)
+                .block();
+    }
 //
 //    public AccountBalance addBalance(OidcUser  authentication, Currency currency, double initialBalance) {
 //        BalanceRequest request = BalanceRequest.builder()

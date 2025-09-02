@@ -6,6 +6,7 @@ import com.bank.accounts.model.UserAccount;
 import com.bank.accounts.repository.AccountBalanceRepository;
 import com.bank.accounts.repository.UserAccountRepository;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -19,15 +20,18 @@ public class AccountService {
     private final AccountBalanceRepository accountBalanceRepository;
     private final UserAccountRepository userAccountRepository;
     private final RestTemplate restTemplate;
+    private final PasswordEncoder passwordEncoder;
 
-    public AccountService(AccountBalanceRepository accountBalanceRepository, UserAccountRepository userAccountRepository, RestTemplate restTemplate) {
+    public AccountService(AccountBalanceRepository accountBalanceRepository, UserAccountRepository userAccountRepository, RestTemplate restTemplate, PasswordEncoder passwordEncoder) {
         this.accountBalanceRepository = accountBalanceRepository;
         this.userAccountRepository = userAccountRepository;
         this.restTemplate = restTemplate;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserAccount creatUserAccount(
             String keyClockId,
+            String password,
             String login,
             String name,
             String email,
@@ -42,8 +46,9 @@ public class AccountService {
 
         var newUserAccount = UserAccount.builder()
                 .login(login)
-                .name(name)
+                .name(name.toLowerCase())
                 .keyClockId(keyClockId)
+                .password(password)
                 .birthdate(birthdate)
                 .email(email)
                 .build();
@@ -82,6 +87,18 @@ public class AccountService {
         sendNotification("Аккаунт обновлён: " + newAccount.getLogin());
         return newAccount;
     }
+
+    public void updatePassword(
+            String login,
+            String password
+    ) {
+
+        var account = userAccountRepository.findByLogin(login)
+                .orElseThrow(() -> new RuntimeException("Аккаунт с логином %s не найден!".formatted(login)));
+        account.setPassword(passwordEncoder.encode(password));
+        userAccountRepository.save(account);
+    }
+
 
     public AccountBalance addBalance(
             Authentication authentication,

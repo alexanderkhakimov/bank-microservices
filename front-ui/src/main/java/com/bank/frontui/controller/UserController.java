@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.Period;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -29,7 +30,7 @@ public class UserController {
     private AccountClient accountClient;
 
     @Autowired
-    private KeycloakAdminService  keycloakAdminService;
+    private KeycloakAdminService keycloakAdminService;
 
     @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
     private String issuerUri;
@@ -62,16 +63,15 @@ public class UserController {
             model.addAttribute("errors", "Возраст должен быть старше 18");
             return "signup";
         }
-        // Регистрация в Keycloak через Admin API (заглушка, позже)
-         String keycloakId = keycloakAdminService.registerUser(login, password, name, email, dob);
-         var account = accountClient.register(keycloakId, login, name, email, dob);
+        String keycloakId = keycloakAdminService.registerUser(login, password, name, email, dob);
+        var account = accountClient.register(keycloakId, password, login, name, email, dob);
         return "redirect:/oauth2/authorization/keycloak";
     }
 
     @GetMapping("/")
-    public String mainPage(@AuthenticationPrincipal OidcUser  oidcUser, Model model) {
+    public String mainPage(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
         String login = oidcUser.getPreferredUsername();
-      //  UserAccount account = accountClient.getAccount(oidcUser);
+        //  UserAccount account = accountClient.getAccount(oidcUser);
         model.addAttribute("login", login);
 //        model.addAttribute("name", account.name());
 //        model.addAttribute("accounts", account.balances());
@@ -80,22 +80,40 @@ public class UserController {
     }
 
     @PostMapping("/user/{login}/editPassword")
-    public String editPassword(@RequestParam String password,
+    public String editPassword(@PathVariable String login,
+                               @RequestParam String password,
                                @RequestParam String confirm_password,
                                Model model) {
         if (!password.equals(confirm_password)) {
             model.addAttribute("passwordErrors", "Пароли не совпадают");
             return "main";
         }
-        // Смена пароля через Keycloak Admin API (заглушка)
-        return "redirect:/";
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserLogin = null;
+        if (authentication instanceof OAuth2AuthenticationToken oAuth2AuthenticationToken) {
+            var oidcUser = (OidcUser) oAuth2AuthenticationToken.getPrincipal();
+            currentUserLogin = oidcUser.getPreferredUsername();
+        }
+
+        if (currentUserLogin == null || !currentUserLogin.equals(login)) {
+            model.addAttribute("unauthenticated", "Пользователь не авторизован!");
+            return "main";
+        }
+        try {
+            keycloakAdminService.updatePasswordKeycloak(login, password);
+            accountClient.updatePassword(login, password);
+            return "redirect:/";
+        } catch (Exception e) {
+            model.addAttribute("userAccountsErrors", e.getMessage());
+            return "main";
+        }
     }
 
     @PostMapping("/user/{login}/editUserAccounts")
     public String editUserAccounts(@RequestParam String name,
                                    @RequestParam String email,
                                    @RequestParam String birthdate,
-                                   @AuthenticationPrincipal OidcUser  oidcUser,
+                                   @AuthenticationPrincipal OidcUser oidcUser,
                                    Model model) {
         LocalDate dob = LocalDate.parse(birthdate);
         if (Period.between(dob, LocalDate.now()).getYears() < 18) {
@@ -109,10 +127,10 @@ public class UserController {
     @PostMapping("/user/{login}/addBalance")
     public String addBalance(@RequestParam Currency currency,
                              @RequestParam double initialBalance,
-                             @AuthenticationPrincipal OidcUser  oidcUser,
+                             @AuthenticationPrincipal OidcUser oidcUser,
                              Model model) {
         try {
-          //  accountClient.addBalance(oidcUser, currency, initialBalance);
+            //  accountClient.addBalance(oidcUser, currency, initialBalance);
         } catch (Exception e) {
             model.addAttribute("userAccountsErrors", e.getMessage());
             return "main";
@@ -132,6 +150,7 @@ public class UserController {
         }
         return "redirect:/";
     }
+
     @GetMapping("/logout")
     public String logout() {
         logger.info("Processing logout request");

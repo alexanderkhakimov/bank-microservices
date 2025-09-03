@@ -73,6 +73,24 @@ public class KeycloakAdminService {
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при регистрации в Keycloak: " + e.getMessage());
         }
+    }
+    public void updateAccount(String login, String name, LocalDate dob){
+        var users = keycloak.realm(realm).users().search(login, true);
+        if (users.isEmpty()) {
+            throw new RuntimeException("Пользователь %s не найден".formatted(login));
+        }
+        var userRepresentation = users.getFirst();
+        var userId = userRepresentation.getId();
+        userRepresentation.setFirstName(name.split(" ")[0]);
+        userRepresentation.setLastName(name.contains(" ") ? name.substring(name.indexOf(" ") + 1) : "");
+        userRepresentation.setEnabled(true);
+        userRepresentation.setEmailVerified(false);
+        userRepresentation.setAttributes(Map.of("birthdate", List.of(dob.toString())));
+        try {
+            keycloak.realm(realm).users().get(userId).update(userRepresentation);
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при обновлении в Keycloak: " + e.getMessage());
+        }
 
     }
 }

@@ -70,7 +70,6 @@ public class AccountService {
             Authentication authentication,
             String login,
             String name,
-            String email,
             LocalDate birthdate) {
         var exitingAccount = getAccount(authentication);
 
@@ -79,12 +78,13 @@ public class AccountService {
                 .keyClockId(exitingAccount.getKeyClockId())
                 .name(name)
                 .login(login)
-                .email(email)
+                .email(exitingAccount.getEmail())
+                .password(exitingAccount.getPassword())
                 .balances(exitingAccount.getBalances())
                 .birthdate(birthdate)
                 .build();
         userAccountRepository.save(newAccount);
-        sendNotification("Аккаунт обновлён: " + newAccount.getLogin());
+       // sendNotification("Аккаунт обновлён: " + newAccount.getLogin());
         return newAccount;
     }
 

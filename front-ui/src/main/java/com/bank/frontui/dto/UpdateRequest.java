@@ -11,7 +11,6 @@ import java.time.LocalDate;
 public record UpdateRequest(
         @NotNull String name,
         @NotNull String login,
-        @Email String email,
         @NotNull @Past LocalDate birthdate
 ) {
 }

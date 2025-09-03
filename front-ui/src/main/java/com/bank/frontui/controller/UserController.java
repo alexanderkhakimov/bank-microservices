@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Arrays;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -75,7 +76,7 @@ public class UserController {
         model.addAttribute("login", login);
 //        model.addAttribute("name", account.name());
 //        model.addAttribute("accounts", account.balances());
-//        model.addAttribute("currency", Arrays.asList(Currency.values()));
+        model.addAttribute("currency", Arrays.asList(Currency.values()));
         return "main";
     }
 
@@ -110,18 +111,34 @@ public class UserController {
     }
 
     @PostMapping("/user/{login}/editUserAccounts")
-    public String editUserAccounts(@RequestParam String name,
-                                   @RequestParam String email,
+    public String editUserAccounts(@PathVariable String login,
+                                   @RequestParam String name,
                                    @RequestParam String birthdate,
-                                   @AuthenticationPrincipal OidcUser oidcUser,
                                    Model model) {
         LocalDate dob = LocalDate.parse(birthdate);
         if (Period.between(dob, LocalDate.now()).getYears() < 18) {
             model.addAttribute("userAccountsErrors", "Возраст должен быть старше 18");
             return "main";
         }
-        //accountClient.updateAccount(oidcUser, name, email, dob);
-        return "redirect:/";
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserLogin = null;
+        if (authentication instanceof OAuth2AuthenticationToken oAuth2AuthenticationToken) {
+            var oidcUser = (OidcUser) oAuth2AuthenticationToken.getPrincipal();
+            currentUserLogin = oidcUser.getPreferredUsername();
+        }
+
+        if (currentUserLogin == null || !currentUserLogin.equals(login)) {
+            model.addAttribute("unauthenticated", "Пользователь не авторизован!");
+            return "main";
+        }
+        try {
+            keycloakAdminService.updateAccount(login,name,dob);
+            accountClient.updateAccount(login,name,dob);
+            return "redirect:/";
+        } catch (Exception e) {
+            model.addAttribute("userAccountsErrors", e.getMessage());
+            return "main";
+        }
     }
 
     @PostMapping("/user/{login}/addBalance")

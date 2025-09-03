@@ -45,13 +45,12 @@ public class AccountsController {
         return ResponseEntity.ok(account);
     }
 
-    @PutMapping("/me")
+    @PutMapping("/me/updateAccount")
     public ResponseEntity<UserAccount> updateMyAccount(@Valid @RequestBody UpdateRequest request, Authentication authentication) {
-        UserAccount account = accountService.updateUserAccount(
+        var account = accountService.updateUserAccount(
                 authentication,
                 request.login(),
                 request.name(),
-                request.email(),
                 request.birthdate()
         );
         return ResponseEntity.ok(account);

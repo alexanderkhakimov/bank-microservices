@@ -1,3 +1,5 @@
 rootProject.name = 'bank-microservices'
 include 'front-ui'
 include 'accounts'
+include 'exchange-generator'
+

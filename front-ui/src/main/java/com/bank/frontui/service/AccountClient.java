@@ -2,6 +2,7 @@ package com.bank.frontui.service;
 
 import com.bank.frontui.dto.RegistrationRequest;
 import com.bank.frontui.dto.UpdatePasswordRequest;
+import com.bank.frontui.dto.UpdateRequest;
 import com.bank.frontui.model.UserAccount;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -44,14 +45,29 @@ public class AccountClient {
                 .block();
     }
 
-    public UserAccount updatePassword(String login, String password) {
+    public void updatePassword(String login, String password) {
         var request = UpdatePasswordRequest.builder()
                 .login(login)
                 .password(password)
                 .build();
 
-        return webClient.post()
+        webClient.post()
                 .uri(accountsApiUrl + "/me/updatePassword")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(UserAccount.class)
+                .block();
+    }
+
+    public void updateAccount(String login, String name, LocalDate birthdate) {
+        var request = UpdateRequest.builder()
+                .login(login)
+                .name(name)
+                .birthdate(birthdate)
+                .build();
+
+        webClient.put()
+                .uri(accountsApiUrl + "/me/updateAccount")
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(UserAccount.class)

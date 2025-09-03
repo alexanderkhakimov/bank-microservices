@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: accounts  \
+    name: accounts
   datasource:
     url: jdbc:h2:mem:accountsdb
     driver-class-name: org.h2.Driver

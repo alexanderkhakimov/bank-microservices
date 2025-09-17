@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 
-@Entity
 @Builder
 @Table(name = "account_balances")
 public record AccountBalance(
@@ -19,6 +18,8 @@ public record AccountBalance(
         @Enumerated(EnumType.STRING)
         Currency currency,
         @PositiveOrZero
-        double balance
+        double balance,
+
+        boolean isExists
 ) {
 }

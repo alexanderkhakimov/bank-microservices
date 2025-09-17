@@ -9,7 +9,6 @@ import lombok.Builder;
 import java.time.LocalDate;
 import java.util.List;
 
-@Entity
 @Table(name = "user_accounts")
 @Builder
 public record UserAccount(

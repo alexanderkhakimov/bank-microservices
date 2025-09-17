@@ -38,8 +38,8 @@ public class UserAccount {
     @NotNull
     private LocalDate birthdate;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "userAccount", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private List<AccountBalance> balances = new ArrayList<>();
 
 }

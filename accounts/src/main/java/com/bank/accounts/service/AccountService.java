@@ -1,22 +1,31 @@
 package com.bank.accounts.service;
 
+import com.bank.accounts.dto.AccountBalanceUpdateRequest;
 import com.bank.accounts.model.AccountBalance;
 import com.bank.accounts.model.Currency;
 import com.bank.accounts.model.UserAccount;
 import com.bank.accounts.repository.AccountBalanceRepository;
 import com.bank.accounts.repository.UserAccountRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
+
     private final AccountBalanceRepository accountBalanceRepository;
     private final UserAccountRepository userAccountRepository;
     private final RestTemplate restTemplate;
@@ -58,7 +67,7 @@ public class AccountService {
         return saved;
     }
 
-    public UserAccount getAccount(Authentication authentication) {
+    public UserAccount getUserAccount(Authentication authentication) {
         var jwt = (Jwt) authentication.getPrincipal();
         var keyClockId = jwt.getSubject();
 
@@ -66,26 +75,56 @@ public class AccountService {
                 .orElseThrow(() -> new RuntimeException("Аккаунт не найдет или не существует!"));
     }
 
+    @Transactional
     public UserAccount updateUserAccount(
             Authentication authentication,
             String login,
+            List<AccountBalance> account,
             String name,
             LocalDate birthdate) {
-        var exitingAccount = getAccount(authentication);
+        var user = getUserAccount(authentication);
 
-        var newAccount = UserAccount.builder()
-                .id(exitingAccount.getId())
-                .keyClockId(exitingAccount.getKeyClockId())
-                .name(name)
-                .login(login)
-                .email(exitingAccount.getEmail())
-                .password(exitingAccount.getPassword())
-                .balances(exitingAccount.getBalances())
-                .birthdate(birthdate)
-                .build();
-        userAccountRepository.save(newAccount);
-       // sendNotification("Аккаунт обновлён: " + newAccount.getLogin());
-        return newAccount;
+        // Получаем текущую коллекцию балансов
+        var balances = user.getBalances();
+        if (balances == null) {
+            balances = new ArrayList<>();
+            user.setBalances(balances);
+        }
+
+        // Создаём карту для быстрого поиска существующих балансов по валюте
+        var existingBalancesByCurrency = balances.stream()
+                .collect(Collectors.toMap(
+                        AccountBalance::getCurrency,
+                        b -> b,
+                        (existing, replacement) -> replacement // Сохраняем последнюю запись при дубликате
+                ));
+
+        // Обновляем или создаём балансы
+        var newBalances = account.stream()
+                .map(accountBalance -> {
+                    var existing = existingBalancesByCurrency.getOrDefault(accountBalance.getCurrency(),
+                            AccountBalance.builder()
+                                    .userAccount(user)
+                                    .currency(accountBalance.getCurrency())
+                                    .build());
+                    existing.setBalance(accountBalance.getBalance());
+                    existing.setExists(accountBalance.isExists());
+                    return existing;
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // Очищаем текущую коллекцию и добавляем обновлённые/новые балансы
+        balances.clear();
+        balances.addAll(newBalances);
+
+        // Обновляем UserAccount
+        user.setLogin(login);
+        user.setName(name);
+        user.setBirthdate(birthdate);
+
+        var updatedAccount = userAccountRepository.save(user);
+        logger.info("Счёт обновлен: id={}, login={}", updatedAccount.getId(), updatedAccount.getLogin());
+        return updatedAccount;
     }
 
     public void updatePassword(
@@ -104,7 +143,7 @@ public class AccountService {
             Authentication authentication,
             Currency currency,
             double initBalance) {
-        var account = getAccount(authentication);
+        var account = getUserAccount(authentication);
 
         if (accountBalanceRepository.findByUserAccountAndCurrency(account, currency).isPresent()) {
             throw new IllegalArgumentException("Счёт в валюте " + currency + " уже существет!");
@@ -120,12 +159,12 @@ public class AccountService {
     }
 
     public List<AccountBalance> getBalances(Authentication authentication) {
-        UserAccount account = getAccount(authentication);
+        UserAccount account = getUserAccount(authentication);
         return accountBalanceRepository.findAllByUserAccount(account);
     }
 
     public void deleteBalance(Authentication authentication, Currency currency) {
-        var account = getAccount(authentication);
+        var account = getUserAccount(authentication);
         AccountBalance balance = accountBalanceRepository.findByUserAccountAndCurrency(account, currency)
                 .orElseThrow(() -> new RuntimeException("Счёт не найден"));
         if (balance.getBalance() != 0) {
@@ -141,4 +180,20 @@ public class AccountService {
         restTemplate.postForEntity(notificationsUrl, message, String.class);
     }
 
+    @Transactional(readOnly = true)
+    public UserAccount getUserAccountByLogin(String login) {
+        return userAccountRepository.findByLogin(login)
+                .orElseThrow(() -> new RuntimeException("Пользователь с логином %s не найден!".formatted(login)));
+    }
+
+    @Transactional
+    public void updateBalance(String login, AccountBalanceUpdateRequest request) {
+        var userAccount = getUserAccountByLogin(login);
+        var balance = userAccount.getBalances().stream()
+                .filter(b -> b.getCurrency().toString().equals(request.currency()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Счёт с валютой %s не найден!".formatted(request.currency())));
+        balance.setBalance(request.balance());
+        userAccountRepository.save(userAccount);
+    }
 }

@@ -1,5 +1,7 @@
 package com.bank.accounts.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,16 +13,24 @@ import lombok.*;
 @Builder
 public class AccountBalance {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("id")
+    private Long id;
 
-        @ManyToOne
-        @JoinColumn(name = "user_account_id")
-        private UserAccount userAccount;
+    @JsonIgnore
+    @ManyToOne
+    @ToString.Exclude
+    @JoinColumn(name = "user_account_id")
+    private UserAccount userAccount;
 
-        @Enumerated(EnumType.STRING)
-        private Currency currency;
+    @JsonProperty("currency")
+    @Enumerated(EnumType.STRING)
+    private Currency currency;
 
-        private Double balance;
+    @JsonProperty("balance")
+    private Double balance;
+
+    @JsonProperty("isExists")
+    private boolean isExists;
 }

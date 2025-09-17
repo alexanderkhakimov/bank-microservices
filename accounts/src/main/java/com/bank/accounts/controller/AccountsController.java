@@ -1,15 +1,14 @@
 package com.bank.accounts.controller;
 
 
-import com.bank.accounts.dto.BalanceRequest;
-import com.bank.accounts.dto.RegistrationRequest;
-import com.bank.accounts.dto.UpdatePasswordRequest;
-import com.bank.accounts.dto.UpdateRequest;
+import com.bank.accounts.dto.*;
 import com.bank.accounts.model.AccountBalance;
 import com.bank.accounts.model.Currency;
 import com.bank.accounts.model.UserAccount;
 import com.bank.accounts.service.AccountService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +18,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/accounts")
 public class AccountsController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AccountsController.class);
+
     private final AccountService accountService;
 
     public AccountsController(AccountService accountService) {
@@ -41,15 +43,33 @@ public class AccountsController {
 
     @GetMapping("/me")
     public ResponseEntity<UserAccount> getMyAccount(Authentication authentication) {
-        UserAccount account = accountService.getAccount(authentication);
+        UserAccount account = accountService.getUserAccount(authentication);
         return ResponseEntity.ok(account);
+    }
+
+    @GetMapping("/{login}")
+    public ResponseEntity<UserAccount> getAccount(@PathVariable String login){
+        var userAccount = accountService.getUserAccountByLogin(login);
+        return ResponseEntity.ok(userAccount);
+    }
+
+    @PutMapping("/{login}/updateBalance")
+    public ResponseEntity<Void> updateBalance(
+            @PathVariable String login,
+            @RequestBody AccountBalanceUpdateRequest request){
+        accountService.updateBalance(login,request);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/me/updateAccount")
     public ResponseEntity<UserAccount> updateMyAccount(@Valid @RequestBody UpdateRequest request, Authentication authentication) {
+
+        logger.info("UpdateRequest user request: {}", request);
+
         var account = accountService.updateUserAccount(
                 authentication,
                 request.login(),
+                request.account(),
                 request.name(),
                 request.birthdate()
         );

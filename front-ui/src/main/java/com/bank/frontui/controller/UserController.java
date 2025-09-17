@@ -1,7 +1,7 @@
 package com.bank.frontui.controller;
 
+import com.bank.frontui.model.AccountBalance;
 import com.bank.frontui.model.Currency;
-import com.bank.frontui.model.UserAccount;
 import com.bank.frontui.service.AccountClient;
 import com.bank.frontui.service.KeycloakAdminService;
 import lombok.extern.slf4j.Slf4j;
@@ -9,19 +9,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Arrays;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
@@ -70,14 +75,51 @@ public class UserController {
     }
 
     @GetMapping("/")
-    public String mainPage(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
+    public Mono<String> mainPage(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
         String login = oidcUser.getPreferredUsername();
-        //  UserAccount account = accountClient.getAccount(oidcUser);
         model.addAttribute("login", login);
-//        model.addAttribute("name", account.name());
-//        model.addAttribute("accounts", account.balances());
         model.addAttribute("currency", Arrays.asList(Currency.values()));
-        return "main";
+        return accountClient.getAccount(oidcUser)
+                .flatMap(account -> {
+                    logger.info("Account data loaded: {}", account);
+                    model.addAttribute("name", account.name());
+                    model.addAttribute("birthdate", account.birthdate());
+                    // Создаём список всех валют с дефолтными значениями
+                    List<AccountBalance> balances = Arrays.stream(Currency.values())
+                            .map(currency -> {
+                                // Проверяем, есть ли счёт для валюты
+                                return account.balances().stream()
+                                        .filter(b -> b.currency() == currency)
+                                        .findFirst()
+                                        .orElse(AccountBalance.builder()
+                                                .currency(currency)
+                                                .balance(0.0)
+                                                .isExists(false)
+                                                .build());
+                            })
+                            .collect(Collectors.toList());
+                    model.addAttribute("accounts", balances);
+                    if (balances.stream().noneMatch(AccountBalance::isExists)) {
+                        logger.warn("No active accounts found for user: {}", login);
+                        model.addAttribute("accountsMessage", "Счета отсутствуют. Выберите валюту и сохраните, чтобы создать счёт.");
+                    }
+                    return Mono.just("main");
+                })
+                .onErrorResume(e -> {
+                    logger.error("Error loading account for user {}: {}", login, e.getMessage());
+                    model.addAttribute("userAccountsError", "Не удалось загрузить данные аккаунта: " + e.getMessage());
+                    // Дефолтный список всех валют
+                    List<AccountBalance> defaultBalances = Arrays.stream(Currency.values())
+                            .map(currency -> AccountBalance.builder()
+                                    .currency(currency)
+                                    .balance(0.0)
+                                    .isExists(false)
+                                    .build())
+                            .collect(Collectors.toList());
+                    model.addAttribute("accounts", defaultBalances);
+                    model.addAttribute("accountsMessage", "Ошибка загрузки счетов. Выберите валюту и сохраните.");
+                    return Mono.just("main");
+                });
     }
 
     @PostMapping("/user/{login}/editPassword")
@@ -112,8 +154,9 @@ public class UserController {
 
     @PostMapping("/user/{login}/editUserAccounts")
     public String editUserAccounts(@PathVariable String login,
-                                   @RequestParam String name,
-                                   @RequestParam String birthdate,
+                                   @RequestParam (required = false) List<String> account ,
+                                   @RequestParam (required = false) String name,
+                                   @RequestParam (required = false) String birthdate,
                                    Model model) {
         LocalDate dob = LocalDate.parse(birthdate);
         if (Period.between(dob, LocalDate.now()).getYears() < 18) {
@@ -131,9 +174,18 @@ public class UserController {
             model.addAttribute("unauthenticated", "Пользователь не авторизован!");
             return "main";
         }
+        List<AccountBalance> newBalance = Arrays.stream(Currency.values())
+                .map(currency -> {
+                    var isExists = account != null && account.contains(currency.name());
+                    return AccountBalance.builder()
+                            .currency(currency)
+                            .balance(0.0)
+                            .isExists(isExists).build();
+                })
+                .toList();
         try {
             keycloakAdminService.updateAccount(login,name,dob);
-            accountClient.updateAccount(login,name,dob);
+            accountClient.updateAccount(login,newBalance,name,dob);
             return "redirect:/";
         } catch (Exception e) {
             model.addAttribute("userAccountsErrors", e.getMessage());

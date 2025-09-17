@@ -3,12 +3,16 @@ package com.bank.frontui.service;
 import com.bank.frontui.dto.RegistrationRequest;
 import com.bank.frontui.dto.UpdatePasswordRequest;
 import com.bank.frontui.dto.UpdateRequest;
+import com.bank.frontui.model.AccountBalance;
 import com.bank.frontui.model.UserAccount;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class AccountClient {
@@ -23,11 +27,14 @@ public class AccountClient {
         this.webClient = webClient;
     }
 
-    //
-//    public UserAccount getAccount(OidcUser  authentication) {
-//
-//    }
-//
+
+    public Mono<UserAccount> getAccount(OidcUser authentication) {
+        return webClient.get()
+                .uri(accountsApiUrl + "/me")
+                .retrieve()
+                .bodyToMono(UserAccount.class);
+    }
+
     public UserAccount register(String keycloakId, String password, String login, String name, String email, LocalDate birthdate) {
         var request = RegistrationRequest.builder()
                 .keycloakId(keycloakId)
@@ -59,19 +66,20 @@ public class AccountClient {
                 .block();
     }
 
-    public void updateAccount(String login, String name, LocalDate birthdate) {
+    public Mono<Void> updateAccount(String login, List<AccountBalance> newBalance, String name, LocalDate birthdate) {
+
         var request = UpdateRequest.builder()
                 .login(login)
                 .name(name)
+                .account(newBalance)
                 .birthdate(birthdate)
                 .build();
 
-        webClient.put()
+       return webClient.put()
                 .uri(accountsApiUrl + "/me/updateAccount")
                 .bodyValue(request)
                 .retrieve()
-                .bodyToMono(UserAccount.class)
-                .block();
+                .bodyToMono(Void.class);
     }
 //
 //    public AccountBalance addBalance(OidcUser  authentication, Currency currency, double initialBalance) {

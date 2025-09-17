@@ -1,8 +1,5 @@
-package com.bank.frontui.model;
+package com.bank.cash.model;
 
-import lombok.Getter;
-
-@Getter
 public enum Currency {
     EUR("Евро"),
     RUB("Рубль"),

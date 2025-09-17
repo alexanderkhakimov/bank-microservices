@@ -5,6 +5,7 @@ import com.bank.accounts.model.Currency;
 import com.bank.accounts.model.UserAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 import java.util.Optional;
@@ -15,4 +16,7 @@ public interface AccountBalanceRepository extends JpaRepository<AccountBalance, 
     Optional<AccountBalance> findByUserAccountAndCurrency(UserAccount userAccount, Currency currency);
 
     List<AccountBalance> findAllByUserAccount(UserAccount account);
+
+    void deleteByUserAccount(UserAccount account);
+
 }

@@ -3,4 +3,7 @@ include 'front-ui'
 include 'accounts'
 include 'exchange-generator'
 include 'cash'
+include 'transfer'
+include 'exchange'
+include 'exchange'
 

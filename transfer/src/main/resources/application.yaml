@@ -1,0 +1,18 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: transfer-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/bank
+  keycloak:
+    realm: bank
+    auth-server-url: http://localhost:8180
+    resource: transfer-service
+    credentials:
+      secret: WKgbpjh4kYBBDQ8ayK2lW7MeRLZMlqrb
+

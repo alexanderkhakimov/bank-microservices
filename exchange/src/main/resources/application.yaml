@@ -1,0 +1,17 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: exchange-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/bank
+  keycloak:
+    realm: bank
+    auth-server-url: http://localhost:8180
+    resource: exchange-service
+    credentials:
+      secret: 9kElCaWDTjcaaWfyjuKItCmyJfdsipgt

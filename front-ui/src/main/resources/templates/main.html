@@ -159,13 +159,13 @@
                     <td style="font-weight:bold;">Перевод себе</td>
                     <td>
                         Со счета
-                        <select name="from_currency">
+                        <select name="fromCurrency">
                             <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
                         </select>
                     </td>
                     <td>
                         На счет
-                        <select name="to_currency">
+                        <select name="toCurrency">
                             <option th:each="eachCurrency : ${currency}" th:value="${eachCurrency.name()}" th:text="${eachCurrency.getTitle()}"/>
                         </select>
                     </td>
@@ -173,7 +173,7 @@
                         <input name="value" type="number" style="width:100%" required/>
                     </td>
                     <td style="text-align:right">
-                        <input hidden name="to_login" th:value="${login}"/>
+                        <input hidden name="toLogin" th:value="${login}"/>
                         <button>Перевести</button>
                     </td>
                 </tr>

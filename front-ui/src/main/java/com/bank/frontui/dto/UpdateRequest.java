@@ -12,7 +12,7 @@ import java.util.List;
 
 @Builder
 public record UpdateRequest(
-        @NotNull@JsonProperty("name")  String name,
+        @NotNull @JsonProperty("name")  String name,
         @NotNull @JsonProperty("login") String login,
         @JsonProperty("account")  List<AccountBalance> account,
         @NotNull @Past @JsonProperty("birthdate") LocalDate birthdate

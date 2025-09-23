@@ -23,8 +23,8 @@ public class ExchangeGeneratorService {
     public void updateExchangeRate() {
         List<ExchangeRate> rates = List.of(
                 new ExchangeRate("Рубль", "RUB", 1.0),
-                new ExchangeRate("Доллар", "USD", 90.0 + random.nextDouble() * 10.0), // 90–100 RUB
-                new ExchangeRate("Евро", "EUR", 100.0 + random.nextDouble() * 10.0)  // 100–110 RUB
+                new ExchangeRate("Доллар", "USD", 0.13 + random.nextDouble() * 10.0),
+                new ExchangeRate("Евро", "EUR", 0.011 + random.nextDouble() * 10.0)
         );
         currentRates.set(rates);
     }

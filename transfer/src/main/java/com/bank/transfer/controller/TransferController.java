@@ -1,29 +1,35 @@
 package com.bank.transfer.controller;
 
-import com.bank.transfer.TransferService.ExchangeClientService;
+import com.bank.transfer.TransferService.TransferService;
+import com.bank.transfer.dto.TransferRequest;
+import jakarta.validation.Valid;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/getInfo")
+@RestController
+@RequestMapping("/{login}/transfer")
 public class TransferController {
-    private final ExchangeClientService exchangeClientService;
+    private final TransferService transferService;
 
-    public TransferController(ExchangeClientService exchangeClientService) {
-        this.exchangeClientService = exchangeClientService;
+    public TransferController(TransferService transferService) {
+        this.transferService = transferService;
     }
 
     private static final Logger logger = LoggerFactory.getLogger(TransferController.class);
 
-    @GetMapping
-    public ResponseEntity<String> getInfo() {
-        logger.info("Запрос получен в Трансфер сервисе");
-        var info = exchangeClientService.getInfoFromExchange();
-        logger.info("Запрос получен из Обмена **{}** в Трансфер сервисе", info);
-        return ResponseEntity.ok("GOOD " + info + "!");
+    @PostMapping
+    public ResponseEntity<String> processTransferOperation(
+            @PathVariable String login,
+            @Valid @RequestBody TransferRequest request,
+            BindingResult bindingResult
+    ) {
+        logger.info("Запрос от пользователя с логином {}: {}", login, request);
+        transferService.processTransferOperation(login, request);
+        logger.info("Запрос успешно выполнен для пользователя с логином {}", login);
+        return ResponseEntity.ok().build();
     }
 }

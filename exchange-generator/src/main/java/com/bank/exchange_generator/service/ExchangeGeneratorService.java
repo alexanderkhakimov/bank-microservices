@@ -17,10 +17,10 @@ public class ExchangeGeneratorService {
     private final Random random;
     private final AtomicReference<List<ExchangeRate>> currentRates;
 
-    public ExchangeGeneratorService(ExchangeClient exchangeClient, Random random, AtomicReference<List<ExchangeRate>> currentRates) {
+    public ExchangeGeneratorService(ExchangeClient exchangeClient) {
         this.exchangeClient = exchangeClient;
-        this.random = random;
-        this.currentRates = currentRates;
+        this.random = new Random();
+        this.currentRates = new AtomicReference<>();
         updateExchangeRate();
     }
 

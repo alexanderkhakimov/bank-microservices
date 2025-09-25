@@ -6,10 +6,7 @@ import com.bank.exchange.service.RateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,6 +18,7 @@ public class RateController {
     private final RateService rateService;
 
     @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping
     public void create(@RequestBody List<UpdateRateRequestDto> dto) {
         final var rate = dto.stream()
                 .map(r -> {

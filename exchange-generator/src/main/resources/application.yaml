@@ -1,17 +1,20 @@
 server:
   port: 8083
-
 spring:
   application:
     name: exchange-generator
   security:
     oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: exchange-generator
+            client-secret: Uppsm320Wyfw2Vn3EDcghnwEP7Dh9TVN
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8180/realms/bank
+            token-uri: http://localhost:8180/realms/bank/protocol/openid-connect/token
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8180/realms/bank
-  keycloak:
-    realm: bank
-    auth-server-url: http://localhost:8180
-    resource: exchange-generator
-    credentials:
-      secret: Uppsm320Wyfw2Vn3EDcghnwEP7Dh9TVN

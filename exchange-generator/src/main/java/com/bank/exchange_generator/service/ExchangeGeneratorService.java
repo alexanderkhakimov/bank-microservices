@@ -13,12 +13,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class ExchangeGeneratorService {
-    final private ExchangeClient exchangeClient;
-    private final Random random = new Random();
-    private final AtomicReference<List<ExchangeRate>> currentRates = new AtomicReference<>();
+    private final ExchangeClient exchangeClient;
+    private final Random random;
+    private final AtomicReference<List<ExchangeRate>> currentRates;
 
-    public ExchangeGeneratorService(ExchangeClient exchangeClient) {
+    public ExchangeGeneratorService(ExchangeClient exchangeClient, Random random, AtomicReference<List<ExchangeRate>> currentRates) {
         this.exchangeClient = exchangeClient;
+        this.random = random;
+        this.currentRates = currentRates;
         updateExchangeRate();
     }
 

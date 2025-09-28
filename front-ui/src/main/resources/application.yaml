@@ -1,6 +1,8 @@
 server:
   port: 8081
 spring:
+  application:
+    name: front-ui
   security:
     oauth2:
       client:

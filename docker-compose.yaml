@@ -1,4 +1,22 @@
 services:
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: dockerfile
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./gateway/src/main/resources/application.yaml:/app/application.yaml:ro
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_CONFIG_LOCATION=file:/app/application.yaml
+      - JAVA_OPTS=-Xmx512m
+    depends_on:
+      - keycloak
+    networks:
+      - bank-network
+
   db:
     image: postgres:15
     environment:
@@ -45,7 +63,7 @@ services:
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID=front-ui
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET=O9U5hQ0NApxA8zdIFFxeOkOUwKx8pUhE
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_AUTHORIZATION_GRANT_TYPE=authorization_code
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_REDIRECT_URI=http://localhost:8081/login/oauth2/code/keycloak
+      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_REDIRECT_URI=http://localhost:8090/login/oauth2/code/keycloak
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_SCOPE=openid,profile,email
       - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI=http://keycloak:8180/realms/bank
       - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USER_NAME_ATTRIBUTE=preferred_username
@@ -67,15 +85,13 @@ services:
       - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
     depends_on:
       - keycloak
-      - exchange-generator
-      - exchange
-      - transfer
-      - cash-service
-      - accounts
+#      - exchange-generator
+#      - exchange
+#      - transfer
+#      - cash-service
+#      - accounts
     networks:
       - bank-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   exchange-generator:
     build:

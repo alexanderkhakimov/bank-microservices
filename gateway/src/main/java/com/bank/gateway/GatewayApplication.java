@@ -1,0 +1,18 @@
+package com.bank.gateway;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@Slf4j
+@SpringBootApplication
+public class GatewayApplication {
+
+    public static void main(String[] args) {
+
+        log.info("Starting Gateway Application...");
+        SpringApplication.run(GatewayApplication.class, args);
+        log.info("Gateway Application started successfully");
+    }
+
+}

@@ -12,7 +12,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user/{login}/cash")
-public class CashController {
+public class
+CashController {
     private static final Logger logger = LoggerFactory.getLogger(CashController.class);
     private final CashService cashService;
 

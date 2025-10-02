@@ -5,5 +5,5 @@ include 'exchange-generator'
 include 'cash'
 include 'transfer'
 include 'exchange'
-include 'exchange'
+include 'gateway'
 

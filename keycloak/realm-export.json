@@ -1186,11 +1186,11 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
-        "http://localhost:8081/login/oauth2/code/keycloak",
-        "http://localhost:8081/login*"
+        "http://localhost:8090/login/oauth2/code/keycloak",
+        "http://localhost:8090/login*"
       ],
       "webOrigins": [
-        "http://localhost:8081"
+        "http://localhost:8090"
       ],
       "notBefore": 0,
       "bearerOnly": false,
@@ -1209,7 +1209,7 @@
         "backchannel.logout.session.required": "true",
         "standard.token.exchange.enabled": "false",
         "frontchannel.logout.session.required": "true",
-        "post.logout.redirect.uris": "http://localhost:8081/login?logout",
+        "post.logout.redirect.uris": "http://localhost:8090/login?logout",
         "oauth2.device.authorization.grant.enabled": "false",
         "display.on.consent.screen": "false",
         "backchannel.logout.revoke.offline.tokens": "false"

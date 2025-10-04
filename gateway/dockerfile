@@ -1,5 +1,4 @@
 FROM amazoncorretto:21-alpine
-RUN apk add --no-cache curl busybox-extras
 WORKDIR /app
 COPY build/libs/gateway.jar app.jar
 EXPOSE 8090

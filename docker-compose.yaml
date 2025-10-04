@@ -1,21 +1,28 @@
 services:
 
+  consul:
+    image: hashicorp/consul:1.18
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    command: consul agent -dev -ui -client=0.0.0.0 -bind=0.0.0.0 -bootstrap-expect=1
+    volumes:
+      - consul_data:/consul/data
+    networks:
+      - bank-network
+
   gateway:
     build:
       context: ./gateway
       dockerfile: dockerfile
     ports:
       - "8090:8090"
-    volumes:
-      - ./gateway/src/main/resources/application.yaml:/app/application.yaml:ro
-    environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - SPRING_CONFIG_LOCATION=file:/app/application.yaml
-      - JAVA_OPTS=-Xmx512m
     depends_on:
-      - keycloak
+      - consul
     networks:
       - bank-network
+
+
 
   db:
     image: postgres:15
@@ -35,12 +42,11 @@ services:
       - KC_DB_URL=jdbc:postgresql://db:5432/bankApp
       - KC_DB_USERNAME=keycloak
       - KC_DB_PASSWORD=root
-      - KC_HOSTNAME_STRICT=false
-      - KC_HOSTNAME_STRICT_HTTPS=false
       - KC_HTTP_ENABLED=true
-      - KC_HTTP_PORT=8180
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME=localhost
     ports:
-      - "8180:8180"
+      - "8180:8080"
     command:
       - start-dev
       - --import-realm
@@ -52,6 +58,8 @@ services:
     networks:
       - bank-network
 
+
+
   front-ui:
     build:
       context: ./front-ui
@@ -59,186 +67,25 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID=front-ui
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET=O9U5hQ0NApxA8zdIFFxeOkOUwKx8pUhE
+      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID=api-gateway
+      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET=t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_AUTHORIZATION_GRANT_TYPE=authorization_code
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_REDIRECT_URI=http://localhost:8090/login/oauth2/code/keycloak
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_SCOPE=openid,profile,email
-      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI=http://keycloak:8180/realms/bank
-      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_USER_NAME_ATTRIBUTE=preferred_username
-      - SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
-      - SPRING_DATASOURCE_USERNAME=sa
-      - SPRING_DATASOURCE_PASSWORD=
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.H2Dialect
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_THYMELEAF_CACHE=false
-      - KEYCLOAK_ADMIN_SERVER_URL=http://keycloak:8180
-      - KEYCLOAK_ADMIN_REALM=bank
-      - KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
-      - KEYCLOAK_ADMIN_CLIENT_SECRET=btJdDbNA75MMsTDRybf25u8fGKZwQTtz
-      - SPRING_H2_CONSOLE_ENABLED=true
-      - SPRING_H2_CONSOLE_PATH=/h2-console
-      - LOGGING_LEVEL_COM_BANK_FRONT_UI=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
+      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI=http://keycloak:8080/realms/bank
     depends_on:
       - keycloak
-#      - exchange-generator
-#      - exchange
-#      - transfer
-#      - cash-service
-#      - accounts
+      - consul
+    #      - exchange-generator
+    #      - exchange
+    #      - transfer
+    #      - cash-service
+    #      - accounts
     networks:
       - bank-network
-
-  exchange-generator:
-    build:
-      context: ./exchange-generator
-      dockerfile: dockerfile
-    ports:
-      - "8083:8083"
-    environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID=exchange-generator
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET=Uppsm320Wyfw2Vn3EDcghnwEP7Dh9TVN
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_SCOPE=openid
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_AUTHORIZATION_GRANT_TYPE=client_credentials
-      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI=http://keycloak:8180/realms/bank
-      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_TOKEN_URI=http://keycloak:8180/realms/bank/protocol/openid-connect/token
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8180/realms/bank
-      - EXCHANGE_API_URL=http://exchange-service:8086/
-      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/studyDB?useSSL=false&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=19931012
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
-      - SPRING_JPA_SHOW_SQL=true
-      - LOGGING_LEVEL_COM_BANK_EXCHANGE_GENERATOR=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB_CLIENT=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
-    depends_on:
-      - exchange
-      - keycloak
-    networks:
-      - bank-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  exchange:
-    build:
-      context: ./exchange
-      dockerfile: dockerfile
-    ports:
-      - "8086:8086"
-    environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - SPRING_APPLICATION_NAME=exchange-service
-      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/studyDB?useSSL=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=19931012
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8180/realms/bank
-      - KEYCLOAK_REALM=bank
-      - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8180
-      - KEYCLOAK_RESOURCE=exchange-service
-      - KEYCLOAK_CREDENTIALS_SECRET=9kElCaWDTjcaaWfyjuKItCmyJfdsipgt
-      - LOGGING_LEVEL_COM_BANK_EXCHANGE_SERVICE=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
-    depends_on:
-      - keycloak
-    networks:
-      - bank-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  transfer:
-    build:
-      context: ./transfer
-      dockerfile: dockerfile
-    ports:
-      - "8085:8085"
-    environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - SPRING_APPLICATION_NAME=transfer-service
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8180/realms/bank
-      - KEYCLOAK_REALM=bank
-      - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8180
-      - KEYCLOAK_RESOURCE=transfer-service
-      - KEYCLOAK_CREDENTIALS_SECRET=WKgbpjh4kYBBDQ8ayK2lW7MeRLZMlqrb
-      - LOGGING_LEVEL_COM_BANK_TRANSFER=DEBUG
-      - LOGGING_LEVEL_COM_FASTERXML_JACKSON=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
-    depends_on:
-      - keycloak
-    networks:
-      - bank-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  cash-service:
-    build:
-      context: ./cash
-      dockerfile: dockerfile
-    ports:
-      - "8084:8084"
-    environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - SPRING_APPLICATION_NAME=cash-service
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8180/realms/bank
-      - KEYCLOAK_REALM=bank
-      - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8180
-      - KEYCLOAK_RESOURCE=cash-service
-      - KEYCLOAK_CREDENTIALS_SECRET=GIKafEJY32OP8C6k6AfdH2hXuY92vPAt
-      - LOGGING_LEVEL_COM_BANK_CASH=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
-    depends_on:
-      - keycloak
-    networks:
-      - bank-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  accounts:
-    build:
-      context: ./accounts
-      dockerfile: dockerfile
-    ports:
-      - "8082:8082"
-    environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - SPRING_APPLICATION_NAME=accounts
-      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/studyDB?useSSL=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=19931012
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
-      - SPRING_JPA_SHOW_SQL=true
-      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8180/realms/bank
-      - KEYCLOAK_REALM=bank
-      - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8180
-      - KEYCLOAK_RESOURCE=accounts
-      - KEYCLOAK_CREDENTIALS_SECRET=oflL9KgT18jd7iRwLDBFIFDymfqQriM6
-      - LOGGING_LEVEL_COM_BANK_ACCOUNTS=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB=DEBUG
-      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY=DEBUG
-    depends_on:
-      - keycloak
-    networks:
-      - bank-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
 volumes:
   mysql_data:
+  consul_data:
 
 networks:
   bank-network:

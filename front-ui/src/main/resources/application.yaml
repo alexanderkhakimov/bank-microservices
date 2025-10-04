@@ -3,40 +3,48 @@ server:
 spring:
   application:
     name: front-ui
+
+  config:
+    import: "optional:consul"
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      config:
+        enabled: false
+
   security:
     oauth2:
       client:
         registration:
           keycloak:
-            client-id: front-ui  # Идентификатор клиента из Keycloak
-            client-secret: O9U5hQ0NApxA8zdIFFxeOkOUwKx8pUhE  # Секрет из Keycloak -> Clients -> Credentials
-            authorization-grant-type: authorization_code  # Тип OAuth flow (code для веб-приложений)
-            redirect-uri: http://localhost:8081/login/oauth2/code/keycloak  # Куда Keycloak редиректит после логина
-            scope: openid,profile,email  # Какие данные запрашивать в JWT (openid обязателен для OIDC)
+            client-id: api-gateway
+            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8081/login/oauth2/code/keycloak
+            scope: openid,profile,email
         provider:
           keycloak:
-            issuer-uri: http://localhost:8180/realms/bank  # URL realm из Keycloak
-            user-name-attribute: preferred_username  # Поле в JWT для имени пользователя
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
-
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: update
+            issuer-uri: http://localhost:8180/realms/bank
+            user-name-attribute: preferred_username
 
   thymeleaf:
     cache: false
-keycloak:
-  admin:
-    server-url: http://localhost:8180
-    realm: bank
-    client-id: admin-cli
-    client-secret: btJdDbNA75MMsTDRybf25u8fGKZwQTtz
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      enabled: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    org.springframework.security: DEBUG
+    org.springframework.cloud.consul: INFO

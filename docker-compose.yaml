@@ -1,5 +1,4 @@
 services:
-
   consul:
     image: hashicorp/consul:1.18
     ports:
@@ -17,12 +16,14 @@ services:
       dockerfile: dockerfile
     ports:
       - "8090:8090"
+    environment:
+      - KEYCLOAK_REDIRECT_URI=http://localhost:8090/login/oauth2/code/keycloak
+      - KEYCLOAK_ISSUER_URI=http://keycloak:8080/realms/bank
+      - KEYCLOAK_JWK_SET_URI=http://keycloak:8080/realms/bank/protocol/openid-connect/certs
     depends_on:
       - consul
     networks:
       - bank-network
-
-
 
   db:
     image: postgres:15
@@ -44,13 +45,13 @@ services:
       - KC_DB_PASSWORD=root
       - KC_HTTP_ENABLED=true
       - KC_HOSTNAME_STRICT=false
-      - KC_HOSTNAME=localhost
+      - KC_HOSTNAME_STRICT_HTTPS=false
+      - KC_HOSTNAME_URL=http://localhost:8180
     ports:
       - "8180:8080"
     command:
       - start-dev
       - --import-realm
-      - -Dkeycloak.import.strategy=OVERWRITE_EXISTING
     volumes:
       - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     depends_on:
@@ -58,33 +59,20 @@ services:
     networks:
       - bank-network
 
-
-
   front-ui:
     build:
       context: ./front-ui
       dockerfile: dockerfile
-    ports:
-      - "8081:8081"
     environment:
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID=api-gateway
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET=t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_AUTHORIZATION_GRANT_TYPE=authorization_code
-      - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_SCOPE=openid,profile,email
-      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI=http://keycloak:8080/realms/bank
+      - KEYCLOAK_ISSUER_URI=http://keycloak:8080/realms/bank
+      - KEYCLOAK_REDIRECT_URI=http://localhost:8081/login/oauth2/code/keycloak
     depends_on:
-      - keycloak
+#      - keycloak
       - consul
-    #      - exchange-generator
-    #      - exchange
-    #      - transfer
-    #      - cash-service
-    #      - accounts
     networks:
       - bank-network
 
 volumes:
-  mysql_data:
   consul_data:
 
 networks:

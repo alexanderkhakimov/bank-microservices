@@ -1,5 +1,6 @@
 package com.bank.gateway.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -12,6 +13,8 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:http://localhost:8180/realms/bankapp/protocol/openid-connect/certs}")
+    private String jwkSetUri;
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         return http
@@ -31,7 +34,7 @@ public class SecurityConfig {
     public ReactiveJwtDecoder jwtDecoder() {
         return
                 NimbusReactiveJwtDecoder
-                        .withJwkSetUri("http://localhost:8180/realms/bank/protocol/openid-connect/certs")
+                        .withJwkSetUri(jwkSetUri)
                         .build();
     }
 }

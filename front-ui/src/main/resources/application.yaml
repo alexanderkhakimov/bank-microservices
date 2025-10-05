@@ -9,25 +9,12 @@ spring:
 
   cloud:
     consul:
-      host: consul
+      host: localhost
       port: 8500
       discovery:
         enabled: true
-
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: api-gateway
-            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
-            authorization-grant-type: authorization_code
-            redirect-uri: ${KEYCLOAK_REDIRECT_URI}
-            scope: openid,profile,email
-        provider:
-          keycloak:
-            issuer-uri: ${KEYCLOAK_ISSUER_URI}
-            user-name-attribute: preferred_username
+        health-check-path: /actuator/health
+        service-name: front-ui
 
   thymeleaf:
     cache: false

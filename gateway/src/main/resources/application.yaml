@@ -6,7 +6,7 @@ spring:
 
   cloud:
     consul:
-      host: consul
+      host: localhost
       port: 8500
       discovery:
         enabled: true
@@ -36,15 +36,12 @@ spring:
             client-id: api-gateway
             client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
             authorization-grant-type: authorization_code
-            redirect-uri: ${KEYCLOAK_REDIRECT_URI}
+            redirect-uri: ${KEYCLOAK_REDIRECT_URI:http://localhost:8090/login/oauth2/code/keycloak}
             scope: openid,profile,email
         provider:
           keycloak:
-            issuer-uri: ${KEYCLOAK_ISSUER_URI}
+            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/bank}
             user-name-attribute: preferred_username
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI}
 
 server:
   port: 8090

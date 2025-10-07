@@ -1,6 +1,7 @@
 package com.bank.frontui.service;
 
 import com.bank.frontui.config.properties.ClientProperties;
+import com.bank.frontui.dto.UserRegistrationRequest;
 import com.bank.frontui.model.UserAccountDto;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
@@ -26,22 +27,13 @@ public class AccountClient {
                 .bodyToMono(UserAccountDto.class);
     }
 
-//    public UserAccountDto register(String keycloakId, String password, String login, String name, String email, LocalDate birthdate) {
-//        var request = RegistrationRequest.builder()
-//                .keycloakId(keycloakId)
-//                .password(password)
-//                .login(login)
-//                .name(name)
-//                .email(email)
-//                .birthdate(birthdate)
-//                .build();
-//        return webClient.post()
-//                .uri(accountsApiUrl + "/register")
-//                .bodyValue(request)
-//                .retrieve()
-//                .bodyToMono(UserAccountDto.class)
-//                .block();
-//    }
+    public Mono<Void> register(UserRegistrationRequest request) {
+        return webClient.post()
+                .uri(clientProperties.getUserClient().getBaseUrl() + "/register")
+                .bodyValue(request)
+                .retrieve()
+                .toBodilessEntity().then();
+    }
 //
 //    public void updatePassword(String login, String password) {
 //        var request = UpdatePasswordRequest.builder()

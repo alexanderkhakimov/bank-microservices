@@ -15,10 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/accounts")
+@RequestMapping("/api/accounts")
 public class AccountsController {
 
     private static final Logger logger = LoggerFactory.getLogger(AccountsController.class);
@@ -30,20 +29,12 @@ public class AccountsController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserAccount> register(@Valid @RequestBody RegistrationRequest request) {
-        var account = accountService.creatUserAccount(
-                request.keycloakId(),
-                request.password(),
-                request.login(),
-                request.name(),
-                request.email(),
-                request.birthdate()
-        );
-
-        return ResponseEntity.ok(account);
+    public ResponseEntity<Void> register(@Valid @RequestBody UserRegistrationDto dto) {
+        accountService.creatUserAccount(dto);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/me")
+    @GetMapping
     public ResponseEntity<UserAccountDto> getMyAccount(Authentication authentication) {
         final var account = accountService.getUserAccount(authentication);
         final var balances = accountService.getBalances(authentication).stream()

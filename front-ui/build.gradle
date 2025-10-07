@@ -1,20 +1,18 @@
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'// Для шаблонов HTML
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-web'// Для аутентификации
-	implementation 'org.springframework.boot:spring-boot-starter-validation'  // Для валидации форм
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
 	implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
 	implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
-//configurations {
-//	all {
-//		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-web'
-//	}
-//}
+configurations {
+	all {
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-web'
+	}
+}
 
 bootJar{
 	archiveFileName = "${project.name}.jar"

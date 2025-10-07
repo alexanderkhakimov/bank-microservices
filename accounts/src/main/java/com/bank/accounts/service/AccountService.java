@@ -1,6 +1,7 @@
 package com.bank.accounts.service;
 
 import com.bank.accounts.dto.AccountBalanceUpdateRequest;
+import com.bank.accounts.dto.UserRegistrationDto;
 import com.bank.accounts.model.AccountBalance;
 import com.bank.accounts.model.Currency;
 import com.bank.accounts.model.UserAccount;
@@ -38,33 +39,23 @@ public class AccountService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserAccount creatUserAccount(
-            String keyClockId,
-            String password,
-            String login,
-            String name,
-            String email,
-            LocalDate birthdate) {
-        if (Period.between(birthdate, LocalDate.now()).getYears() < 18) {
-            throw new IllegalArgumentException("Возраст должен быть старше 18 лет");
-        }
-
-        if (userAccountRepository.findByLogin(login).isPresent()) {
+    public UserAccount creatUserAccount(UserRegistrationDto dto) {
+        if (userAccountRepository.findByLogin(dto.login()).isPresent()) {
             throw new IllegalArgumentException("Логин уже существует");
         }
 
-        var newUserAccount = UserAccount.builder()
-                .login(login)
-                .name(name.toLowerCase())
-                .keyClockId(keyClockId)
-                .password(password)
-                .birthdate(birthdate)
-                .email(email)
+        final var newUserAccount = UserAccount.builder()
+                .keyClockId()
+                .login(dto.login())
+                .name(dto.name())
+                .password(dto.password())
+                .birthdate(dto.birthdate())
+                .email(dto.email())
                 .build();
 
-        var saved = userAccountRepository.save(newUserAccount);
+       final var savedUserAcount = userAccountRepository.save(newUserAccount);
         //sendNotification("Новый аккаунт создан: " + login);
-        return saved;
+        return savedUserAcount;
     }
 
     public UserAccount getUserAccount(Authentication authentication) {

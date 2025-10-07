@@ -37,7 +37,7 @@ spring:
         - id: accounts-service
           uri: lb://accounts
           predicates:
-            - Path=/api/v1/accounts/**
+            - Path=/api/accounts/**
           filters:
             - TokenRelay
 

@@ -39,11 +39,6 @@
 //    @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
 //    private String issuerUri;
 //
-//    @GetMapping("/signup")
-//    public String signupForm(Model model) {
-//        model.addAttribute("errors", null);
-//        return "signup";
-//    }
 //
 //    @PostMapping("/signup")
 //    public String signup(@RequestParam String login,

@@ -18,7 +18,8 @@ spring:
 
   thymeleaf:
     cache: false
-
+  jackson:
+    property-naming-strategy: SNAKE_CASE
 
   security:
     oauth2:
@@ -36,7 +37,7 @@ spring:
             scope: openid, profile, email
 clients:
   user-client:
-    base-url: ${USER_CLIENT_BASE_URL:http://localhost:8090/api/v1/accounts/me}
+    base-url: ${USER_CLIENT_BASE_URL:http://localhost:8090/api/accounts}
   transfer-client:
     base-url: ${TRANSFER_CLIENT_BASE_URL:http://localhost:8090/api/transfers}
   cash-client:

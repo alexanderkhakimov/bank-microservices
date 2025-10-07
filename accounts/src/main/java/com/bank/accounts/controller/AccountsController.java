@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/accounts")
@@ -42,13 +44,29 @@ public class AccountsController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserAccount> getMyAccount(Authentication authentication) {
-        UserAccount account = accountService.getUserAccount(authentication);
-        return ResponseEntity.ok(account);
+    public ResponseEntity<UserAccountDto> getMyAccount(Authentication authentication) {
+        final var account = accountService.getUserAccount(authentication);
+        final var balances = accountService.getBalances(authentication).stream()
+                .map(balance -> AccountBalanceDto.builder()
+                        .currency(balance.getCurrency())
+                        .balance(BigDecimal.valueOf(balance.getBalance()))
+                        .isExists(balance.isExists())
+                        .build())
+                .toList();
+
+        final var accountResponse = UserAccountDto.builder()
+                .name(account.getName())
+                .login(account.getLogin())
+                .birthdate(account.getBirthdate())
+                .email(account.getEmail())
+                .balances(balances)
+                .build();
+
+        return ResponseEntity.ok(accountResponse);
     }
 
     @GetMapping("/{login}")
-    public ResponseEntity<UserAccount> getAccount(@PathVariable String login){
+    public ResponseEntity<UserAccount> getAccount(@PathVariable String login) {
         var userAccount = accountService.getUserAccountByLogin(login);
         return ResponseEntity.ok(userAccount);
     }
@@ -56,8 +74,8 @@ public class AccountsController {
     @PutMapping("/{login}/updateBalance")
     public ResponseEntity<Void> updateBalance(
             @PathVariable String login,
-            @RequestBody AccountBalanceUpdateRequest request){
-        accountService.updateBalance(login,request);
+            @RequestBody AccountBalanceUpdateRequest request) {
+        accountService.updateBalance(login, request);
         return ResponseEntity.ok().build();
     }
 

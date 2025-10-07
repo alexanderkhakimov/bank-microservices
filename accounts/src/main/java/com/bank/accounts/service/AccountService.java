@@ -68,10 +68,10 @@ public class AccountService {
     }
 
     public UserAccount getUserAccount(Authentication authentication) {
-        var jwt = (Jwt) authentication.getPrincipal();
-        var keyClockId = jwt.getSubject();
+        final var jwt = (Jwt) authentication.getPrincipal();
+        final var login = jwt.getClaimAsString("preferred_username");
 
-        return userAccountRepository.findByKeyClockId(keyClockId)
+        return userAccountRepository.findByLogin(login)
                 .orElseThrow(() -> new RuntimeException("Аккаунт не найдет или не существует!"));
     }
 
@@ -133,7 +133,7 @@ public class AccountService {
     ) {
 
         var account = userAccountRepository.findByLogin(login)
-                .orElseThrow(() -> new RuntimeException("Аккаунт с логином %s не найден!".formatted(login)));
+                .orElseThrow(() -> new RuntimeException("Аккаунт с логином %s не найден!" .formatted(login)));
         account.setPassword(passwordEncoder.encode(password));
         userAccountRepository.save(account);
     }
@@ -183,7 +183,7 @@ public class AccountService {
     @Transactional(readOnly = true)
     public UserAccount getUserAccountByLogin(String login) {
         return userAccountRepository.findByLogin(login)
-                .orElseThrow(() -> new RuntimeException("Пользователь с логином %s не найден!".formatted(login)));
+                .orElseThrow(() -> new RuntimeException("Пользователь с логином %s не найден!" .formatted(login)));
     }
 
     @Transactional
@@ -192,7 +192,7 @@ public class AccountService {
         var balance = userAccount.getBalances().stream()
                 .filter(b -> b.getCurrency().toString().equals(request.currency()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Счёт с валютой %s не найден!".formatted(request.currency())));
+                .orElseThrow(() -> new RuntimeException("Счёт с валютой %s не найден!" .formatted(request.currency())));
         balance.setBalance(request.balance());
         userAccountRepository.save(userAccount);
     }

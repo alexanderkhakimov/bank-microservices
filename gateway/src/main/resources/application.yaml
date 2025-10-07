@@ -20,31 +20,33 @@ spring:
           lower-case-service-id: true
 
       routes:
-        - id: front-ui-route
-          uri: lb://front-ui
+        - id: root-route  # Добавлен дефис для элемента массива
+          uri: no://op
           predicates:
-            - Path=/ui/**
+            - Path=/
           filters:
-            - StripPrefix=1
+            - RedirectTo=302, /login
+        - id: front-ui-route  # Добавлен дефис для элемента массива
+          uri: lb://front-ui
+          order: 10000
+          predicates:
+            - Path=/**
+          filters:
             - TokenRelay
 
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: api-gateway
-            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
-            authorization-grant-type: authorization_code
-            redirect-uri: ${KEYCLOAK_REDIRECT_URI:http://localhost:8090/login/oauth2/code/keycloak}
-            scope: openid,profile,email
-        provider:
-          keycloak:
-            issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8180/realms/bank}
-            user-name-attribute: preferred_username
+        - id: accounts-service
+          uri: lb://accounts
+          predicates:
+            - Path=/api/v1/accounts/**
+          filters:
+            - TokenRelay
 
 server:
   port: 8090
+  reactive:
+    session:
+      cookie:
+        name: SESSION_${spring.application.name}
 
 management:
   endpoints:

@@ -19,6 +19,29 @@ spring:
   thymeleaf:
     cache: false
 
+
+  security:
+    oauth2:
+      client:
+        provider:
+          my-provider-keycloak:
+            issuer-uri: http://localhost:8180/realms/bank
+        registration:
+          keycloak:
+            authorizationGrantType: authorization_code
+            provider: my-provider-keycloak
+            client-id: api-gateway
+            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
+            redirect-uri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
+            scope: openid, profile, email
+clients:
+  user-client:
+    base-url: ${USER_CLIENT_BASE_URL:http://localhost:8090/api/v1/accounts/me}
+  transfer-client:
+    base-url: ${TRANSFER_CLIENT_BASE_URL:http://localhost:8090/api/transfers}
+  cash-client:
+    base-url: ${CASH_CLIENT_BASE_URL:http://localhost:8090/api/cash}
+
 management:
   endpoints:
     web:

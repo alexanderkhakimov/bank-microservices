@@ -6,6 +6,9 @@ dependencies {
 
     implementation "org.keycloak:keycloak-spring-boot-starter:${keycloakVersion}"
 
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
+
 
     implementation 'com.mysql:mysql-connector-j'
 

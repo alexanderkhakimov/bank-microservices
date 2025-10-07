@@ -2,25 +2,32 @@ package com.bank.frontui.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableWebFluxSecurity
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
-        http
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/actuator/**", "/login").permitAll()
-                        .anyExchange().authenticated()
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/**", "/login").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .csrf(ServerHttpSecurity.CsrfSpec::disable);
-        return http.build();
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")  // Кастомная страница логина
+                        .defaultSuccessUrl("/main", true)
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+                )
+                .csrf(csrf -> csrf.disable())
+                .build();
     }
 
 }

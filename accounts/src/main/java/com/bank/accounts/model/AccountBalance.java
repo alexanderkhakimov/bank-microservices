@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "account_balances")
 @Data
@@ -29,7 +31,7 @@ public class AccountBalance {
     private Currency currency;
 
     @JsonProperty("balance")
-    private Double balance;
+    private BigDecimal balance;
 
     @JsonProperty("isExists")
     private boolean isExists;

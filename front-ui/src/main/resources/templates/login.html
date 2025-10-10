@@ -11,14 +11,14 @@
             <h2>Вход в систему</h2>
         </td>
     </tr>
-    <tr th:if="${param.error}">
+    <tr th:if="${error}">
         <td colspan="2" style="color:red; text-align:center;">
-            Ошибка аутентификации
+            <span th:text="${error}"></span>
         </td>
     </tr>
-    <tr th:if="${param.logout}">
+    <tr th:if="${logout}">
         <td colspan="2" style="color:green; text-align:center;">
-            Вы успешно вышли из системы
+            <span th:text="${logout}"></span>
         </td>
     </tr>
     <tr>

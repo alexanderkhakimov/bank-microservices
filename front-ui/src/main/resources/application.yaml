@@ -26,14 +26,14 @@ spring:
       client:
         provider:
           my-provider-keycloak:
-            issuer-uri: http://localhost:8180/realms/bank
+            issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
         registration:
           keycloak:
             authorizationGrantType: authorization_code
             provider: my-provider-keycloak
             client-id: api-gateway
             client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
-            redirect-uri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
+            redirect-uri: ${APP_BASE_URL:http://localhost:8090}/login/oauth2/code/{registrationId}
             scope: openid, profile, email
 clients:
   user-client:
@@ -55,3 +55,4 @@ management:
 logging:
   level:
     org.springframework.security: DEBUG
+    com.bank.frontui: DEBUG

@@ -17,8 +17,9 @@ services:
     ports:
       - "8090:8090"
     environment:
+      - spring.cloud.consul.host=consul
+      - spring.cloud.consul.port=8500
       - KEYCLOAK_REDIRECT_URI=http://localhost:8090/login/oauth2/code/keycloak
-      - KEYCLOAK_JWK_SET_URI=http://keycloak:8080/realms/bank/protocol/openid-connect/certs
     depends_on:
       - consul
     networks:
@@ -58,17 +59,18 @@ services:
     networks:
       - bank-network
 
-  front-ui:
-    build:
-      context: ./front-ui
-      dockerfile: dockerfile
-    environment:
-      - KEYCLOAK_REDIRECT_URI=http://localhost:8081/login/oauth2/code/keycloak
-    depends_on:
-#      - keycloak
-      - consul
-    networks:
-      - bank-network
+#  front-ui:
+#    build:
+#      context: ./front-ui
+#      dockerfile: dockerfile
+#    environment:
+#      - ISSUER_URL=http://keycloak:8080/realms/bank
+#      - USER_CLIENT_BASE_URL=http://gateway:8090/api/accounts
+##    depends_on:
+##      - keycloak
+##      - consul
+#    networks:
+#      - bank-network
 
 volumes:
   consul_data:

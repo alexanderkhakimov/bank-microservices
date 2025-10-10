@@ -8,12 +8,9 @@ import java.math.BigDecimal;
 
 @Builder
 public record AccountBalanceDto(
-        UserAccountDto userAccountDto,
-
         Currency currency,
         @PositiveOrZero
         BigDecimal balance,
-
         boolean isExists
 ) {
 }

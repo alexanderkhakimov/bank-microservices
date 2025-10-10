@@ -41,3 +41,9 @@ spring:
     resource: accounts
     credentials:
       secret: oflL9KgT18jd7iRwLDBFIFDymfqQriM6
+
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.bank.accounts: DEBUG

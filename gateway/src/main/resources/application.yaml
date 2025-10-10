@@ -20,13 +20,13 @@ spring:
           lower-case-service-id: true
 
       routes:
-        - id: root-route  # Добавлен дефис для элемента массива
+        - id: root-route
           uri: no://op
           predicates:
             - Path=/
           filters:
             - RedirectTo=302, /login
-        - id: front-ui-route  # Добавлен дефис для элемента массива
+        - id: front-ui-route
           uri: lb://front-ui
           order: 10000
           predicates:

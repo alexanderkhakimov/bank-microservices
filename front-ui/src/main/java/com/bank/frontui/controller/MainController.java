@@ -29,32 +29,9 @@ public class MainController {
         this.accountClient = accountClient;
     }
 
-    @GetMapping("/test")
-    public Mono<String> testPage(Model model) {
-        model.addAttribute("message", "Тестовое сообщение");
-        model.addAttribute("timestamp", LocalDateTime.now());
-        return Mono.just("test-template");
-    }
-
-    @GetMapping("/")
-    public String getTest(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
-
-        var login = oidcUser.getPreferredUsername();
-        var email = oidcUser.getEmail();
-        var name = oidcUser.getFullName();
-        log.info("Пользователь {} загружает основную страницу в тестовом блоке", login);
-
-        model.addAttribute("login", login);
-        model.addAttribute("currency", Arrays.asList(Currency.values()));
-        var defaultBalances = createDefaultBalances();
-        model.addAttribute("accounts", defaultBalances);
-
-        return "main";
-    }
-
     @GetMapping("/main")
     public Mono<String> mainPage(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
-        String login = oidcUser.getPreferredUsername();
+        final var login = oidcUser.getPreferredUsername();
         log.info("Пользователь {} загружает основную страницу", login);
 
         model.addAttribute("login", login);
@@ -62,7 +39,7 @@ public class MainController {
         var defaultBalances = createDefaultBalances();
         model.addAttribute("accounts", defaultBalances);
 
-        return accountClient.getAccount(oidcUser)
+        return accountClient.getAccount(login)
                 .doOnNext(account -> log.info("Данные аккаунта загружены: {}", account))
                 .flatMap(account -> processAccountData(account, model, login))
                 .onErrorResume(e -> handleAccountError(e, model, login))
@@ -72,12 +49,12 @@ public class MainController {
     private Mono<String> processAccountData(UserAccountDto account, Model model, String login) {
         model.addAttribute("name", account.name());
         model.addAttribute("birthdate", account.birthdate());
-
+        log.info("Счета пользователя {}", account.balances());
         List<AccountBalanceDto> balances = createBalances(account);
         model.addAttribute("accounts", balances);
 
         if (balances.stream().noneMatch(AccountBalanceDto::isExists)) {
-            log.warn("No active accounts found for user: {}", login);
+            log.warn("Не найдены активные счета: {}", login);
             model.addAttribute("accountsMessage", "Счета отсутствуют. Выберите валюту и сохраните, чтобы создать счёт.");
         }
 

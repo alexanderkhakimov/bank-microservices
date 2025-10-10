@@ -7,6 +7,7 @@ import com.bank.accounts.model.Currency;
 import com.bank.accounts.model.UserAccount;
 import com.bank.accounts.service.AccountService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +19,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/accounts")
+@Slf4j
 public class AccountsController {
-
-    private static final Logger logger = LoggerFactory.getLogger(AccountsController.class);
 
     private final AccountService accountService;
 
@@ -29,22 +29,24 @@ public class AccountsController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@Valid @RequestBody UserRegistrationDto dto) {
+    public ResponseEntity<Void> register(@Valid @RequestBody RegisterUserRequestDto dto) {
+        log.info("Пользователь {} направил запрос на регистрацию", dto.login());
         accountService.creatUserAccount(dto);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
-    public ResponseEntity<UserAccountDto> getMyAccount(Authentication authentication) {
-        final var account = accountService.getUserAccount(authentication);
-        final var balances = accountService.getBalances(authentication).stream()
+    @GetMapping("/{login}")
+    public ResponseEntity<UserAccountDto> getAccount(@PathVariable String login) {
+        var account = accountService.getUserAccountByLogin(login);
+        final var balances = accountService.getBalances(account).stream()
+                .filter(AccountBalance::isExists)
                 .map(balance -> AccountBalanceDto.builder()
                         .currency(balance.getCurrency())
-                        .balance(BigDecimal.valueOf(balance.getBalance()))
+                        .balance(balance.getBalance())
                         .isExists(balance.isExists())
                         .build())
                 .toList();
-
+        log.info("Итоговые балансы для ответа: {}", balances);
         final var accountResponse = UserAccountDto.builder()
                 .name(account.getName())
                 .login(account.getLogin())
@@ -52,14 +54,8 @@ public class AccountsController {
                 .email(account.getEmail())
                 .balances(balances)
                 .build();
-
+        log.info("Итоговый акаунт для ответа: {}", accountResponse);
         return ResponseEntity.ok(accountResponse);
-    }
-
-    @GetMapping("/{login}")
-    public ResponseEntity<UserAccount> getAccount(@PathVariable String login) {
-        var userAccount = accountService.getUserAccountByLogin(login);
-        return ResponseEntity.ok(userAccount);
     }
 
     @PutMapping("/{login}/updateBalance")
@@ -73,7 +69,7 @@ public class AccountsController {
     @PutMapping("/me/updateAccount")
     public ResponseEntity<UserAccount> updateMyAccount(@Valid @RequestBody UpdateRequest request, Authentication authentication) {
 
-        logger.info("UpdateRequest user request: {}", request);
+        log.info("UpdateRequest user request: {}", request);
 
         var account = accountService.updateUserAccount(
                 authentication,
@@ -104,10 +100,11 @@ public class AccountsController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/me/balances")
-    public ResponseEntity<List<AccountBalance>> getBalances(Authentication authentication) {
-        List<AccountBalance> balances = accountService.getBalances(authentication);
-        return ResponseEntity.ok(balances);
-    }
+//    @GetMapping("/me/balances")
+//    public ResponseEntity<List<AccountBalance>> getBalances(Authentication authentication) {
+//
+//        List<AccountBalance> balances = accountService.getBalances(authentication);
+//        return ResponseEntity.ok(balances);
+//    }
 }
 

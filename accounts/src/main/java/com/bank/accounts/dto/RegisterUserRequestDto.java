@@ -9,12 +9,12 @@ import lombok.Builder;
 import java.time.LocalDate;
 
 @Builder
-public record UserRegistrationDto(
+public record RegisterUserRequestDto(
         @NotBlank String login,
         @NotBlank String password,
-        @NotBlank String confirmPassword,
         @NotBlank String name,
         @Email String email,
         @NotNull @Past LocalDate birthdate
 ) {
 }
+

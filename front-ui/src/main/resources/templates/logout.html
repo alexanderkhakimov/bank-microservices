@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Вы хотели бы выйти?</title>
+</head>
+<body>
+<a href="/main" style="float:right;">
+    <b>ГЛАВНАЯ &#10549;</b>
+</a>
+<h1>Выйти?</h1>
+<form th:action="@{/logout}" method="post">
+    <input type="submit" value="Выйти" />
+</form>
+</body>
+</html>

@@ -1,7 +1,7 @@
 package com.bank.accounts.service;
 
 import com.bank.accounts.dto.AccountBalanceUpdateRequest;
-import com.bank.accounts.dto.UserRegistrationDto;
+import com.bank.accounts.dto.RegisterUserRequestDto;
 import com.bank.accounts.model.AccountBalance;
 import com.bank.accounts.model.Currency;
 import com.bank.accounts.model.UserAccount;
@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,13 +39,11 @@ public class AccountService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserAccount creatUserAccount(UserRegistrationDto dto) {
+    public void creatUserAccount(RegisterUserRequestDto dto) {
         if (userAccountRepository.findByLogin(dto.login()).isPresent()) {
             throw new IllegalArgumentException("Логин уже существует");
         }
-
         final var newUserAccount = UserAccount.builder()
-                .keyClockId()
                 .login(dto.login())
                 .name(dto.name())
                 .password(dto.password())
@@ -53,9 +51,8 @@ public class AccountService {
                 .email(dto.email())
                 .build();
 
-       final var savedUserAcount = userAccountRepository.save(newUserAccount);
+        userAccountRepository.save(newUserAccount);
         //sendNotification("Новый аккаунт создан: " + login);
-        return savedUserAcount;
     }
 
     public UserAccount getUserAccount(Authentication authentication) {
@@ -124,7 +121,7 @@ public class AccountService {
     ) {
 
         var account = userAccountRepository.findByLogin(login)
-                .orElseThrow(() -> new RuntimeException("Аккаунт с логином %s не найден!" .formatted(login)));
+                .orElseThrow(() -> new RuntimeException("Аккаунт с логином %s не найден!".formatted(login)));
         account.setPassword(passwordEncoder.encode(password));
         userAccountRepository.save(account);
     }
@@ -140,7 +137,7 @@ public class AccountService {
             throw new IllegalArgumentException("Счёт в валюте " + currency + " уже существет!");
         }
         var balance = AccountBalance.builder()
-                .balance(initBalance)
+                .balance(BigDecimal.valueOf(initBalance))
                 .userAccount(account)
                 .currency(currency)
                 .build();
@@ -149,8 +146,7 @@ public class AccountService {
         return balance;
     }
 
-    public List<AccountBalance> getBalances(Authentication authentication) {
-        UserAccount account = getUserAccount(authentication);
+    public List<AccountBalance> getBalances(UserAccount account) {
         return accountBalanceRepository.findAllByUserAccount(account);
     }
 
@@ -158,7 +154,7 @@ public class AccountService {
         var account = getUserAccount(authentication);
         AccountBalance balance = accountBalanceRepository.findByUserAccountAndCurrency(account, currency)
                 .orElseThrow(() -> new RuntimeException("Счёт не найден"));
-        if (balance.getBalance() != 0) {
+        if (balance.getBalance().doubleValue() != 0) {
             throw new IllegalStateException("Нельзя удалить счёт с ненулевым балансом");
         }
         accountBalanceRepository.delete(balance);
@@ -174,7 +170,7 @@ public class AccountService {
     @Transactional(readOnly = true)
     public UserAccount getUserAccountByLogin(String login) {
         return userAccountRepository.findByLogin(login)
-                .orElseThrow(() -> new RuntimeException("Пользователь с логином %s не найден!" .formatted(login)));
+                .orElseThrow(() -> new RuntimeException("Пользователь с логином %s не найден!".formatted(login)));
     }
 
     @Transactional
@@ -183,8 +179,8 @@ public class AccountService {
         var balance = userAccount.getBalances().stream()
                 .filter(b -> b.getCurrency().toString().equals(request.currency()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Счёт с валютой %s не найден!" .formatted(request.currency())));
-        balance.setBalance(request.balance());
+                .orElseThrow(() -> new RuntimeException("Счёт с валютой %s не найден!".formatted(request.currency())));
+        balance.setBalance(BigDecimal.valueOf(request.balance()));
         userAccountRepository.save(userAccount);
     }
 }

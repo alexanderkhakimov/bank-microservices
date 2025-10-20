@@ -1,5 +1,6 @@
 package com.bank.frontui.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -14,12 +15,9 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OAuth2Service {
     private final ReactiveOAuth2AuthorizedClientManager manager;
-
-    public OAuth2Service(ReactiveOAuth2AuthorizedClientManager manager) {
-        this.manager = manager;
-    }
 
     public Mono<String> getTokenValue() {
         return ReactiveSecurityContextHolder.getContext()

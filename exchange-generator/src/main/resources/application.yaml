@@ -3,21 +3,40 @@ server:
 spring:
   application:
     name: exchange-generator
+
+  config:
+    import: "optional:consul:"
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        enabled: true
+        health-check-path: /actuator/health
+        service-name: exchange-generator
   security:
     oauth2:
       client:
+        provider:
+          my-provider-keycloak:
+            issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
         registration:
           keycloak:
-            client-id: exchange-generator
-            client-secret: Uppsm320Wyfw2Vn3EDcghnwEP7Dh9TVN
-            scope: openid
-            authorization-grant-type: client_credentials
-        provider:
-          keycloak:
-            issuer-uri: http://localhost:8180/realms/bank
-            token-uri: http://localhost:8180/realms/bank/protocol/openid-connect/token
+            authorizationGrantType: client_credentials
+            provider: my-provider-keycloak
+            client-id: api-gateway
+            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
+            redirect-uri: ${APP_BASE_URL:http://localhost:8090}/login/oauth2/code/{registrationId}
+            scope: openid, profile, email
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8180/realms/bank
-exchange:
-  api-url: http://localhost:8086
+clients:
+  exchange-client:
+    base-url: ${EXCHANGE_CLIENT_BASE_URL:http://localhost:8090/api/exchange}
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.bank.exchange-generator: DEBUG

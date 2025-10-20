@@ -47,7 +47,7 @@ public class AccountClient {
                             })
                             .onStatus(status -> status.is5xxServerError(), response -> {
                                 log.error("Серверная ошибка для пользователя {}: статус {}", login, response.statusCode());
-                                return Mono.error(new UserServiceException("Сервис пользователей недоступен"));
+                                return Mono.error(new UserServiceException("Сервис пользователей оступен"));
                             })
                             .bodyToMono(UserAccountDto.class)
                             .doOnError(error -> log.error("Ошибка получения профиля пользователя {}: {}", login, error.getMessage()));

@@ -1,10 +1,11 @@
 server:
   port: 8086
+  address: 0.0.0.0
 spring:
   application:
-    name: exchange-service
+    name: exchange
   datasource:
-    url: jdbc:mysql://localhost:3306/studyDB?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://host.docker.internal:3306/studyDB?useSSL=false&serverTimezone=UTC
     username: root
     password: 19931012
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,14 +17,49 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
     show-sql: true
+
+  config:
+    import: "optional:consul:"
+
+  cloud:
+    consul:
+      host: consul
+      port: 8500
+      discovery:
+        enabled: true
+        hostname: exchange
+        health-check-path: /actuator/health
+        service-name: exchange
   security:
     oauth2:
+      client:
+        provider:
+          my-provider-keycloak:
+            issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
+        registration:
+          keycloak:
+            authorizationGrantType: client_credentials
+            provider: my-provider-keycloak
+            client-id: api-gateway
+            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
+            redirect-uri: ${APP_BASE_URL:http://localhost:8090}/login/oauth2/code/{registrationId}
+            scope: openid, profile, email
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8180/realms/bank
-  keycloak:
-    realm: bank
-    auth-server-url: http://localhost:8180
-    resource: exchange-service
-    credentials:
-      secret: 9kElCaWDTjcaaWfyjuKItCmyJfdsipgt
+          issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: beans,health,info,metrics
+      base-path: /actuator
+  endpoint:
+    beans:
+      enabled: true
+    enabled-by-default: true
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.bank.exchange: DEBUG
+    org.springframework.web: DEBUG
+    com.bank.exchange.controller: DEBUG

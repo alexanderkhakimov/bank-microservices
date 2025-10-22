@@ -20,4 +20,8 @@ public class RateService {
         rateRepository.deleteAll();
         rateRepository.saveAll(rate);
     }
+
+    public List<Rate> getRatesAll() {
+        return rateRepository.findAll();
+    }
 }

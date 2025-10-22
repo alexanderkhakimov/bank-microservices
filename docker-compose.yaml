@@ -59,6 +59,40 @@ services:
     networks:
       - bank-network
 
+  exchange-generator:
+    build:
+      context: ./exchange-generator
+      dockerfile: dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      - spring.cloud.consul.host=consul
+      - spring.cloud.consul.port=8500
+      - ISSUER_URL=http://keycloak:8080/realms/bank
+      - EXCHANGE_CLIENT_BASE_URL=http://gateway:8090/api/exchange
+    depends_on:
+      - consul
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+    networks:
+      - bank-network
+
+  exchange:
+    build:
+      context: ./exchange
+      dockerfile: dockerfile
+    ports:
+      - "8086:8086"
+    environment:
+      - spring.cloud.consul.host=consul
+      - spring.cloud.consul.port=8500
+      - ISSUER_URL=http://keycloak:8080/realms/bank
+    depends_on:
+      - consul
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - bank-network
 #  front-ui:
 #    build:
 #      context: ./front-ui

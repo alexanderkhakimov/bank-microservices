@@ -9,7 +9,7 @@ spring:
 
   cloud:
     consul:
-      host: localhost
+      host: consul
       port: 8500
       discovery:
         enabled: true
@@ -38,5 +38,5 @@ clients:
 
 logging:
   level:
-    org.springframework.security: DEBUG
-    com.bank.exchange-generator: DEBUG
+    org.springframework.security: INFO
+    com.bank.exchange-generator: INFO

@@ -10,6 +10,7 @@ spring:
       port: 8500
       discovery:
         enabled: true
+        hostname: localhost
         health-check-path: /actuator/health
         service-name: api-gateway
 
@@ -38,6 +39,13 @@ spring:
           uri: lb://accounts
           predicates:
             - Path=/api/accounts/**
+          filters:
+            - TokenRelay
+
+        - id: exchange-service
+          uri: lb://exchange
+          predicates:
+            - Path=/api/exchange/**
           filters:
             - TokenRelay
 

@@ -1,5 +1,7 @@
 package com.bank.exchange.enums;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum Currency {
     EUR("Евро"),
     RUB("Рубль"),
@@ -10,6 +12,7 @@ public enum Currency {
         this.title = title;
     }
 
+    @JsonValue
     public String getTitle() {
         return title;
     }

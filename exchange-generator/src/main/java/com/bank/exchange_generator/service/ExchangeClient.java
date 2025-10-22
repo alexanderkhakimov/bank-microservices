@@ -34,11 +34,12 @@ public class ExchangeClient {
                         log.warn("Недействительный токен для сервиса");
                         return Mono.error(new AuthenticationException("Не действительный токен"));
                     }
-                    log.info("Запрос пошел");
+                    log.info("Запрос с телом {}", rates.toString());
                     return webClient.post()
-                            .uri("/rates")
+                            .uri("/")
                             .bodyValue(rates)
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                            .header(HttpHeaders.CONTENT_TYPE, "application/json")
                             .retrieve()
                             .onStatus(status -> status.is4xxClientError(), response ->
                                     Mono.error(new RuntimeException("Клиентская ошибка со статусом: " + response.statusCode()))

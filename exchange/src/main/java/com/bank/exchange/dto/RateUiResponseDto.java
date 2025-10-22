@@ -1,18 +1,16 @@
 package com.bank.exchange.dto;
 
-import com.bank.exchange.enums.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class UpdateRateRequestDto {
-    private Currency currency;
+public class RateUiResponseDto {
+    private String title;
+    private String name;
     private BigDecimal value;
 }

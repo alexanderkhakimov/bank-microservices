@@ -11,6 +11,7 @@ public class ClientProperties {
     private ClientConfig userClient;
     private ClientConfig transferClient;
     private ClientConfig cashClient;
+    private ClientConfig exchangeClient;
 
     @Getter
     @Setter

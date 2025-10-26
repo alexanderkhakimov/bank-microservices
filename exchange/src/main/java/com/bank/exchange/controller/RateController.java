@@ -22,6 +22,7 @@ public class RateController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/")
     public List<RateUiResponseDto> getRatesUi() {
+        log.info("Получен запрос в сервис обмена от Front-UI сервиса");
         return rateService.getRatesAll().stream()
                 .map(rate -> RateUiResponseDto.builder()
                         .title(rate.getCurrency().getTitle())
@@ -34,6 +35,7 @@ public class RateController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/rates")
     public List<RateResponseDto> getRates() {
+        log.info("Получен запрос в сервис обмена от внутреннего сервиса");
         return rateService.getRatesAll().stream()
                 .map(rate -> RateResponseDto.builder()
                         .currency(rate.getCurrency())

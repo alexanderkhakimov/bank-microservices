@@ -31,8 +31,6 @@ public class TransferService {
         }
         accountClient.updateBalance(login, request.fromCurrency(), toBalance.balance() - amountInFromCurrency);
         accountClient.updateBalance(request.toLogin(), request.toCurrency(), toBalance.balance() + amountInFromCurrency);
-
-
     }
 
     private AccountBalanceDto getBalance(UserAccountDto account, String fromCurrency) {

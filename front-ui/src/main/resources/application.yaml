@@ -9,7 +9,7 @@ spring:
 
   cloud:
     consul:
-      host: localhost
+      host: consul
       port: 8500
       discovery:
         enabled: true
@@ -42,6 +42,8 @@ clients:
     base-url: ${TRANSFER_CLIENT_BASE_URL:http://localhost:8090/api/transfers}
   cash-client:
     base-url: ${CASH_CLIENT_BASE_URL:http://localhost:8090/api/cash}
+  exchange-client:
+    base-url: ${EXCHANGE_CLIENT_BASE_URL:http://localhost:8090/api/exchange}
 
 management:
   endpoints:

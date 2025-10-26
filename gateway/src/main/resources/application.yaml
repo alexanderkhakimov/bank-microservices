@@ -27,8 +27,9 @@ spring:
             - Path=/
           filters:
             - RedirectTo=302, /login
+
         - id: front-ui-route
-          uri: lb://front-ui
+          uri: lb://front-ui #  http://host.docker.internal:8081
           order: 10000
           predicates:
             - Path=/**

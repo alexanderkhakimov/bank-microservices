@@ -28,6 +28,7 @@ public class ExchangeGeneratorService {
     public void updateRates() {
         try {
             var rates = List.of(
+                    UpdateRateRequestDto.builder().currency(Currency.RUB).value(BigDecimal.ONE).build(),
                     UpdateRateRequestDto.builder().currency(Currency.EUR).value(BigDecimal.valueOf(0.011 + random.nextDouble() * 10.0)).build(),
                     UpdateRateRequestDto.builder().currency(Currency.USD).value(BigDecimal.valueOf(0.013 + random.nextDouble() * 10.0)).build()
             );

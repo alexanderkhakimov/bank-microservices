@@ -1,0 +1,13 @@
+spring:
+  cloud:
+    consul:
+      enabled: false
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  spring:
+    security:
+      enabled: false
+
+client:
+  exchange-client:
+    baseurl: http://test-url

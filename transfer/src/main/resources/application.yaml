@@ -4,6 +4,17 @@ server:
 spring:
   application:
     name: transfer-service
+  config:
+    import: "optional:consul:"
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        enabled: true
+        health-check-path: /actuator/health
+        service-name: transfer-service
   security:
     oauth2:
       resourceserver:
@@ -15,6 +26,16 @@ spring:
     resource: transfer-service
     credentials:
       secret: WKgbpjh4kYBBDQ8ayK2lW7MeRLZMlqrb
+
+clients:
+  user-client:
+    base-url: ${USER_CLIENT_BASE_URL:http://localhost:8090/api/accounts}
+  blocker-client:
+    base-url: ${BLOCKER_CLIENT_BASE_URL:http://localhost:8090/api/blocker}
+  notification-client:
+    base-url: ${NOTIFICATION_CLIENT_BASE_URL:http://localhost:8090/api/notification}
+  exchange-client:
+    base-url: ${EXCHANGE_CLIENT_BASE_URL:http://localhost:8090/api/exchange}
 logging:
   level:
     com.bank.transfer: DEBUG

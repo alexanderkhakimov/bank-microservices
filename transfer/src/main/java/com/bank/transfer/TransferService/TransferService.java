@@ -7,6 +7,8 @@ import com.bank.transfer.exception.TransferOperationException;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 public class TransferService {
     private final AccountClient accountClient;
@@ -18,19 +20,27 @@ public class TransferService {
     }
 
     public void processTransferOperation(String login, @Valid TransferRequest request) {
-        var account = accountClient.getUserAccount(login);
-        final var fromBalance = getBalance(account, request.fromCurrency());
-        final var toBalance = getBalance(account, request.toCurrency());
+        final var fromAccount = accountClient.getUserAccount(login);
+        final var fromBalance = getBalance(fromAccount, request.fromCurrency());
 
-        if (fromBalance.balance() < request.value()) {
+        if (fromBalance.balance().compareTo(request.amount()) < 0) {
             throw new TransferOperationException("Недостаточно средсв на счеты " + fromBalance.currency());
         }
-        double amountInFromCurrency = -1.0;
+
+        final var toAccount = accountClient.getUserAccount(request.toLogin());
+        final var toBalance = getBalance(toAccount, request.toCurrency());
+
+
+        BigDecimal convertedAmount = request.amount();
         if (!fromBalance.currency().equals(toBalance.currency())) {
-            amountInFromCurrency = exchangeClient.convert(request);
+            convertedAmount = exchangeClient.convert(request.fromCurrency(), request.toCurrency(), request.amount());
         }
-        accountClient.updateBalance(login, request.fromCurrency(), toBalance.balance() - amountInFromCurrency);
-        accountClient.updateBalance(request.toLogin(), request.toCurrency(), toBalance.balance() + amountInFromCurrency);
+        try {
+            accountClient.updateBalance(login, request.fromCurrency(), fromBalance.balance().subtract(convertedAmount));
+            accountClient.updateBalance(request.toLogin(), request.toCurrency(), toBalance.balance().add(convertedAmount));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private AccountBalanceDto getBalance(UserAccountDto account, String fromCurrency) {

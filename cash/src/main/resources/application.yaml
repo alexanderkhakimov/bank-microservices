@@ -4,14 +4,48 @@ server:
 spring:
   application:
     name: cash-service
+  config:
+    import: "optional:consul:"
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        enabled: true
+        health-check-path: /actuator/health
+        service-name: cash-service
   security:
     oauth2:
+      client:
+        provider:
+          my-provider-keycloak:
+            issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
+        registration:
+          keycloak:
+            authorizationGrantType: client_credentials
+            provider: my-provider-keycloak
+            client-id: api-gateway
+            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
+            redirect-uri: ${APP_BASE_URL:http://localhost:8090}/login/oauth2/code/{registrationId}
+            scope: openid, profile, email
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8180/realms/bank
-  keycloak:
-    realm: bank
-    auth-server-url: http://localhost:8180
-    resource: cash-service
-    credentials:
-      secret: GIKafEJY32OP8C6k6AfdH2hXuY92vPAt
+          issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
+
+clients:
+  user-client:
+    base-url: ${USER_CLIENT_BASE_URL:http://localhost:8090/api/accounts}
+  blocker-client:
+    base-url: ${BLOCKER_CLIENT_BASE_URL:http://localhost:8090/api/blocker}
+  notification-client:
+    base-url: ${NOTIFICATION_CLIENT_BASE_URL:http://localhost:8090/api/notification}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

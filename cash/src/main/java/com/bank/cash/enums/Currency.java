@@ -1,4 +1,4 @@
-package com.bank.cash.model;
+package com.bank.cash.enums;
 
 public enum Currency {
     EUR("Евро"),

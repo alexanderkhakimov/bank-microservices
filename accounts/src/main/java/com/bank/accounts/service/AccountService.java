@@ -1,5 +1,6 @@
 package com.bank.accounts.service;
 
+import com.bank.accounts.dto.AccountBalanceDto;
 import com.bank.accounts.dto.AccountBalanceUpdateRequest;
 import com.bank.accounts.dto.RegisterUserRequestDto;
 import com.bank.accounts.model.AccountBalance;
@@ -7,6 +8,7 @@ import com.bank.accounts.model.Currency;
 import com.bank.accounts.model.UserAccount;
 import com.bank.accounts.repository.AccountBalanceRepository;
 import com.bank.accounts.repository.UserAccountRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -21,11 +23,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 public class AccountService {
-
-    private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
 
     private final AccountBalanceRepository accountBalanceRepository;
     private final UserAccountRepository userAccountRepository;
@@ -111,7 +111,7 @@ public class AccountService {
         user.setBirthdate(birthdate);
 
         var updatedAccount = userAccountRepository.save(user);
-        logger.info("Счёт обновлен: id={}, login={}", updatedAccount.getId(), updatedAccount.getLogin());
+        log.info("Счёт обновлен: id={}, login={}", updatedAccount.getId(), updatedAccount.getLogin());
         return updatedAccount;
     }
 
@@ -146,8 +146,15 @@ public class AccountService {
         return balance;
     }
 
-    public List<AccountBalance> getBalances(UserAccount account) {
-        return accountBalanceRepository.findAllByUserAccount(account);
+    public List<AccountBalanceDto> getBalances(UserAccount account) {
+        return accountBalanceRepository.findAllByUserAccount(account).stream()
+                .filter(AccountBalance::isExists)
+                .map(balance -> AccountBalanceDto.builder()
+                        .currency(balance.getCurrency())
+                        .balance(balance.getBalance())
+                        .isExists(balance.isExists())
+                        .build())
+                .toList();
     }
 
     public void deleteBalance(Authentication authentication, Currency currency) {
@@ -167,7 +174,6 @@ public class AccountService {
         restTemplate.postForEntity(notificationsUrl, message, String.class);
     }
 
-    @Transactional(readOnly = true)
     public UserAccount getUserAccountByLogin(String login) {
         return userAccountRepository.findByLogin(login)
                 .orElseThrow(() -> new RuntimeException("Пользователь с логином %s не найден!".formatted(login)));
@@ -177,10 +183,10 @@ public class AccountService {
     public void updateBalance(String login, AccountBalanceUpdateRequest request) {
         var userAccount = getUserAccountByLogin(login);
         var balance = userAccount.getBalances().stream()
-                .filter(b -> b.getCurrency().toString().equals(request.currency()))
+                .filter(b -> b.getCurrency().equals(request.currency()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Счёт с валютой %s не найден!".formatted(request.currency())));
-        balance.setBalance(BigDecimal.valueOf(request.balance()));
+                .orElseThrow(() -> new RuntimeException("Счёт с валютой %s не найден!".formatted(request.currency().getTitle())));
+        balance.setBalance(request.balance());
         userAccountRepository.save(userAccount);
     }
 }

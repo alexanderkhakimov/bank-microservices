@@ -17,15 +17,21 @@ spring:
         service-name: transfer-service
   security:
     oauth2:
+      client:
+        provider:
+          my-provider-keycloak:
+            issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
+        registration:
+          keycloak:
+            authorizationGrantType: client_credentials
+            provider: my-provider-keycloak
+            client-id: api-gateway
+            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
+            redirect-uri: ${APP_BASE_URL:http://localhost:8090}/login/oauth2/code/{registrationId}
+            scope: openid, profile, email
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8180/realms/bank
-  keycloak:
-    realm: bank
-    auth-server-url: http://localhost:8180
-    resource: transfer-service
-    credentials:
-      secret: WKgbpjh4kYBBDQ8ayK2lW7MeRLZMlqrb
+          issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
 
 clients:
   user-client:
@@ -36,7 +42,18 @@ clients:
     base-url: ${NOTIFICATION_CLIENT_BASE_URL:http://localhost:8090/api/notification}
   exchange-client:
     base-url: ${EXCHANGE_CLIENT_BASE_URL:http://localhost:8090/api/exchange}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
 logging:
   level:
+    org.springframework.security: DEBUG
+    org.springframework.cloud.consul: DEBUG
     com.bank.transfer: DEBUG
-    com.fasterxml.jackson: DEBUG

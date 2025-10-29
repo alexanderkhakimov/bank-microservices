@@ -1,9 +1,12 @@
 package com.bank.accounts.dto;
 
+import com.bank.accounts.model.Currency;
 import lombok.Builder;
+
+import java.math.BigDecimal;
 
 @Builder
 public record AccountBalanceUpdateRequest(
-        String currency,
-        double balance
+        Currency currency,
+        BigDecimal balance
 ) {}

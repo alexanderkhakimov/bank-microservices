@@ -7,6 +7,7 @@ import com.bank.accounts.model.Currency;
 import com.bank.accounts.model.UserAccount;
 import com.bank.accounts.service.AccountService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,14 +20,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/accounts")
+@RequiredArgsConstructor
 @Slf4j
 public class AccountsController {
 
     private final AccountService accountService;
-
-    public AccountsController(AccountService accountService) {
-        this.accountService = accountService;
-    }
 
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterUserRequestDto dto) {
@@ -37,15 +35,8 @@ public class AccountsController {
 
     @GetMapping("/{login}")
     public ResponseEntity<UserAccountDto> getAccount(@PathVariable String login) {
-        var account = accountService.getUserAccountByLogin(login);
-        final var balances = accountService.getBalances(account).stream()
-                .filter(AccountBalance::isExists)
-                .map(balance -> AccountBalanceDto.builder()
-                        .currency(balance.getCurrency())
-                        .balance(balance.getBalance())
-                        .isExists(balance.isExists())
-                        .build())
-                .toList();
+        final var account = accountService.getUserAccountByLogin(login);
+        final var balances = accountService.getBalances(account);
         log.info("Итоговые балансы для ответа: {}", balances);
         final var accountResponse = UserAccountDto.builder()
                 .name(account.getName())

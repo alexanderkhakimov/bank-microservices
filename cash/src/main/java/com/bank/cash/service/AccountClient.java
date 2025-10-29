@@ -1,15 +1,12 @@
-package com.bank.transfer.TransferService;
+package com.bank.cash.service;
 
-import com.bank.transfer.config.properties.ClientProperties;
-import com.bank.transfer.dto.AccountBalanceUpdateRequest;
-import com.bank.transfer.dto.UserAccountDto;
-import com.bank.transfer.exception.TransferOperationException;
-import lombok.RequiredArgsConstructor;
+import com.bank.cash.config.properties.ClientProperties;
+import com.bank.cash.dto.AccountBalanceUpdateRequest;
+import com.bank.cash.dto.UserAccountDto;
+import com.bank.cash.exception.CashOperationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 
@@ -32,11 +29,11 @@ public class AccountClient {
                     .retrieve()
                     .body(UserAccountDto.class);
             if (userAccount == null || userAccount.balances() == null) {
-                throw new TransferOperationException("Пользователь или его счета не найдены: " + login);
+                throw new CashOperationException("Пользователь или его счета не найдены: " + login);
             }
             return userAccount;
         } catch (Exception e) {
-            throw new TransferOperationException("Не удалось получить данные счёта для пользователя: " + login, e);
+            throw new CashOperationException("Не удалось получить данные счёта для пользователя: " + login, e);
         }
     }
 
@@ -53,7 +50,8 @@ public class AccountClient {
                     .retrieve()
                     .toBodilessEntity();
         } catch (Exception e) {
-            throw new TransferOperationException("Не удалось обновить баланс для пользователя " + login, e);
+            throw new CashOperationException("Не удалось обновить баланс для пользователя " + login, e);
         }
     }
 }
+

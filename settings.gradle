@@ -6,4 +6,6 @@ include 'cash'
 include 'transfer'
 include 'exchange'
 include 'gateway'
+include 'blocker'
+include 'notifications'
 

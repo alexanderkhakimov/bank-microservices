@@ -1,0 +1,36 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: notification-service
+
+  config:
+    import: "optional:consul:"
+
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        enabled: true
+        health-check-path: /actuator/health
+        service-name: notification-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.bank.notifications: DEBUG

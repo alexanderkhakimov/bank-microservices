@@ -56,7 +56,7 @@ class TransferControllerTest {
     @Test
     void processTransferOperation_InvalidRequest_ReturnsBadRequest() throws Exception {
         String login = "user123";
-        TransferRequest invalidRequest = new TransferRequest("", "", new BigDecimal("-100"), "");
+        final var invalidRequest = new TransferRequest("", "", new BigDecimal("-100"), "");
 
         mockMvc.perform(post("/{login}/transfer", login)
                         .with(csrf())
@@ -68,7 +68,7 @@ class TransferControllerTest {
     @Test
     void processTransferOperation_ServiceThrowsException_ReturnsInternalServerError() throws Exception {
         String login = "user123";
-        TransferRequest request = new TransferRequest("USD", "EUR", new BigDecimal("100.00"), "user123");
+        final var request = new TransferRequest("USD", "EUR", new BigDecimal("100.00"), "user123");
 
         doThrow(new RuntimeException("Service error"))
                 .when(transferService).processTransferOperation(eq(login), any());

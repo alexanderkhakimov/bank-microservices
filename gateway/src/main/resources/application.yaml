@@ -50,6 +50,27 @@ spring:
           filters:
             - TokenRelay
 
+        - id: blocker-service
+          uri: lb://blocker
+          predicates:
+            - Path=/api/blocker/**
+          filters:
+            - TokenRelay
+
+        - id: notifications-service
+          uri: lb://exchange
+          predicates:
+            - Path=/api/notification/**
+          filters:
+            - TokenRelay
+            -
+        - id: cash-service
+          uri: lb://cash
+          predicates:
+            - Path=/api/cash/**
+          filters:
+            - TokenRelay
+
 server:
   port: 8090
   reactive:

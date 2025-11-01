@@ -1,13 +1,11 @@
 package com.bank.notifications.controller;
 
-import com.bank.notifications.dto.NotificataUserRequestDto;
+import com.bank.notifications.dto.NotificationsUserRequestDto;
 import com.bank.notifications.service.NotificationsService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -39,7 +37,7 @@ public class NotificationsControllerTest {
     @Test
     void testNotificationEndpoint() throws Exception {
         final var login = "hello";
-        final var request = NotificataUserRequestDto.builder()
+        final var request = NotificationsUserRequestDto.builder()
                 .email("test@gmail.com")
                 .message("test")
                 .build();

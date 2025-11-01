@@ -1,6 +1,6 @@
 package com.bank.notifications.controller;
 
-import com.bank.notifications.dto.NotificataUserRequestDto;
+import com.bank.notifications.dto.NotificationsUserRequestDto;
 import com.bank.notifications.service.NotificationsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ public class NotificationsController {
 
     @PostMapping("/{login}")
     public ResponseEntity<String> notificateUsers(
-            @RequestBody NotificataUserRequestDto requestDto,
+            @RequestBody NotificationsUserRequestDto requestDto,
             @PathVariable String login
     ) {
         log.warn("Пришло оповещение от {} и сообщением {}", login, requestDto.message());

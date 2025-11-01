@@ -1,11 +1,13 @@
 dependencies {
-    implementation'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.keycloak:keycloak-spring-boot-starter'
     implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
     implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 }
 configurations {
     all {
@@ -14,4 +16,8 @@ configurations {
 }
 bootJar {
     archiveFileName = "${project.name}.jar"
+}
+
+test {
+    useJUnitPlatform()
 }

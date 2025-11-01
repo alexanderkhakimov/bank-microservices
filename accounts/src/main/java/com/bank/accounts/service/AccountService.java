@@ -126,7 +126,6 @@ public class AccountService {
         userAccountRepository.save(account);
     }
 
-
     public AccountBalance addBalance(
             Authentication authentication,
             Currency currency,

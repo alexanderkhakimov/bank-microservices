@@ -10,13 +10,12 @@ spring:
 
   cloud:
     consul:
-      host: localhost
+      host: consul
       port: 8500
       discovery:
         enabled: true
         health-check-path: /actuator/health
         service-name: notification-service
-
   security:
     oauth2:
       resourceserver:
@@ -30,7 +29,6 @@ management:
   endpoint:
     health:
       show-details: always
-
 logging:
   level:
-    com.bank.notifications: DEBUG
+    com.bank.notifications: INFO

@@ -23,25 +23,14 @@ public class RateController {
     @GetMapping("/")
     public List<RateUiResponseDto> getRatesUi() {
         log.info("Получен запрос в сервис обмена от Front-UI сервиса");
-        return rateService.getRatesAll().stream()
-                .map(rate -> RateUiResponseDto.builder()
-                        .title(rate.getCurrency().getTitle())
-                        .name(rate.getCurrency().name())
-                        .value(rate.getValue())
-                        .build())
-                .toList();
+        return rateService.getUiRatesAll();
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/rates")
     public List<RateResponseDto> getRates() {
         log.info("Получен запрос в сервис обмена от внутреннего сервиса");
-        return rateService.getRatesAll().stream()
-                .map(rate -> RateResponseDto.builder()
-                        .currency(rate.getCurrency())
-                        .value(rate.getValue())
-                        .build())
-                .toList();
+        return rateService.getRatesAll();
     }
 
 
@@ -49,13 +38,6 @@ public class RateController {
     @PostMapping("/")
     public void create(@RequestBody List<UpdateRateRequestDto> dto) {
         log.info("Получен запрос в сервис обмена {}", dto);
-        final var rate = dto.stream()
-                .map(r -> {
-                    return Rate.builder()
-                            .value(r.getValue())
-                            .currency(r.getCurrency())
-                            .build();
-                }).toList();
-        rateService.updateAll(rate);
+        rateService.updateAll(dto);
     }
 }

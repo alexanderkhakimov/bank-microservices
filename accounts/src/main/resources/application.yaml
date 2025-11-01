@@ -35,6 +35,9 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8180/realms/bank
+clients:
+  notification-client:
+    base-url: ${NOTIFICATION_CLIENT_BASE_URL:http://localhost:8090/api/notification}
 
 logging:
   level:

@@ -9,14 +9,11 @@ import com.bank.accounts.model.UserAccount;
 import com.bank.accounts.repository.AccountBalanceRepository;
 import com.bank.accounts.repository.UserAccountRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,13 +26,11 @@ public class AccountService {
 
     private final AccountBalanceRepository accountBalanceRepository;
     private final UserAccountRepository userAccountRepository;
-    private final RestTemplate restTemplate;
     private final PasswordEncoder passwordEncoder;
 
-    public AccountService(AccountBalanceRepository accountBalanceRepository, UserAccountRepository userAccountRepository, RestTemplate restTemplate, PasswordEncoder passwordEncoder) {
+    public AccountService(AccountBalanceRepository accountBalanceRepository, UserAccountRepository userAccountRepository, PasswordEncoder passwordEncoder) {
         this.accountBalanceRepository = accountBalanceRepository;
         this.userAccountRepository = userAccountRepository;
-        this.restTemplate = restTemplate;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -141,7 +136,7 @@ public class AccountService {
                 .currency(currency)
                 .build();
         accountBalanceRepository.save(balance);
-        sendNotification("Счёт добавлен: " + currency + " для " + account.getLogin());
+//        sendNotification("Счёт добавлен: " + currency + " для " + account.getLogin());
         return balance;
     }
 
@@ -164,13 +159,7 @@ public class AccountService {
             throw new IllegalStateException("Нельзя удалить счёт с ненулевым балансом");
         }
         accountBalanceRepository.delete(balance);
-        sendNotification("Счёт удалён: " + currency + " для " + account.getLogin());
-    }
-
-
-    private void sendNotification(String message) {
-        var notificationsUrl = "http://localhost:8083/api/notifications";  // Заглушка
-        restTemplate.postForEntity(notificationsUrl, message, String.class);
+//             sendNotification("Счёт удалён: " + currency + " для " + account.getLogin());
     }
 
     public UserAccount getUserAccountByLogin(String login) {

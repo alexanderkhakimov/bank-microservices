@@ -6,11 +6,10 @@ spring:
 
   cloud:
     consul:
-      host: localhost
+      host: consul
       port: 8500
       discovery:
         enabled: true
-        hostname: localhost
         health-check-path: /actuator/health
         service-name: api-gateway
 
@@ -63,7 +62,7 @@ spring:
             - Path=/api/notification/**
           filters:
             - TokenRelay
-            -
+
         - id: cash-service
           uri: lb://cash
           predicates:

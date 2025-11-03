@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
+
 public record TransferRequest(
         @NotBlank(message = "Выберите валюту списания")
         String fromCurrency,
@@ -11,7 +13,7 @@ public record TransferRequest(
         String toCurrency,
         @Min(value = 1, message = "Должно быть больше 1")
         @NotNull(message = "Не должно быть пустым")
-        double value,
+        BigDecimal amount,
         @NotBlank(message = "Пользователь обязателен")
         String toLogin
 ) {

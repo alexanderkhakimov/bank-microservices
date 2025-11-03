@@ -19,14 +19,12 @@ public class AccountClient {
 
     private final WebClient webClient;
     private final OAuth2Service oAuth2Service;
-    private final ClientProperties clientProperties;
 
     public AccountClient(WebClient.Builder builder, ClientProperties clientProperties, OAuth2Service oAuth2Service) {
         this.oAuth2Service = oAuth2Service;
         this.webClient = builder
                 .baseUrl(clientProperties.getUserClient().getBaseUrl())
                 .build();
-        this.clientProperties = clientProperties;
     }
 
 

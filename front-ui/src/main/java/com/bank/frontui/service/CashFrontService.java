@@ -1,49 +1,62 @@
-//package com.bank.frontui.service;
-//
-//import com.bank.frontui.dto.CashFormRequest;
-//import com.bank.frontui.dto.CashRequest;
-//import com.bank.frontui.exception.CashOperationException;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//import org.springframework.http.HttpStatusCode;
-//import org.springframework.stereotype.Service;
-//import org.springframework.web.reactive.function.client.WebClient;
-//import reactor.core.publisher.Mono;
-//
-//import java.util.List;
-//
-//@Service
-//public class CashFrontService {
-//    private static final Logger logger = LoggerFactory.getLogger(CashFrontService.class);
-//    private final WebClient webClient;
-//    private final String cashServiceUrl = "http://localhost:8084/user";
-//
-//    public CashFrontService(WebClient webClient) {
-//        this.webClient = webClient;
-//    }
-//
-//    public Mono<Void> processCashOperation(String login, CashFormRequest request) {
-//        CashRequest cashRequest = CashRequest.builder()
-//                .currency(request.currency())
-//                .value(request.value())
-//                .action(request.toCashAction())
-//                .build();
-//
-//        return webClient.post()
-//                .uri(cashServiceUrl + "/{login}/cash", login)
-//                .bodyValue(cashRequest)
-//                .retrieve()
-//                .onStatus(HttpStatusCode::is4xxClientError,
-//                        response -> response.bodyToMono(List.class)
-//                                .map(body -> new CashOperationException("Ошибка от сервиса Cash: " + body)))
-//                .onStatus(HttpStatusCode::is5xxServerError,
-//                        response -> Mono.just(new CashOperationException("Сервис Cash недоступен")))
-//                .bodyToMono(List.class)
-//                .flatMap(errors -> {
-//                    if (!errors.isEmpty()) {
-//                        return Mono.error(new CashOperationException(String.join(", ", (List<String>) errors)));
-//                    }
-//                    return Mono.empty();
-//                });
-//    }
-//}
+package com.bank.frontui.service;
+
+import com.bank.frontui.config.properties.ClientProperties;
+import com.bank.frontui.dto.CashFormRequest;
+import com.bank.frontui.dto.CashRequest;
+import com.bank.frontui.exception.CashOperationException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+import javax.naming.AuthenticationException;
+import java.math.BigDecimal;
+
+@Slf4j
+@Service
+public class CashFrontService {
+    private final WebClient webClient;
+    private final OAuth2Service oAuth2Service;
+
+    public CashFrontService(WebClient.Builder builder, ClientProperties clientProperties, OAuth2Service oAuth2Service) {
+        this.oAuth2Service = oAuth2Service;
+        this.webClient = builder
+                .baseUrl(clientProperties.getCashClient().getBaseUrl())
+                .build();
+    }
+
+    public Mono<ResponseEntity<Void>> processCashOperation(String login, CashFormRequest request) {
+        final var cashRequest = CashRequest.builder()
+                .currency(request.currency())
+                .value(BigDecimal.valueOf(request.value()))
+                .action(request.toCashAction())
+                .build();
+        log.info("Запрос на обналичивание денежных средства сформирован {}", cashRequest);
+        return oAuth2Service.getTokenValue()
+                .flatMap(accessToken -> {
+                    if (accessToken == null || accessToken.isEmpty()) {
+                        log.warn("Недействительный токен для пользователя {}", login);
+                        return Mono.error(new AuthenticationException("Не действительный токен"));
+                    }
+                    return webClient.post()
+                            .uri("/user/{login}/cash", login)
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                            .bodyValue(request)
+                            .retrieve()
+                            .onStatus(status -> status.is4xxClientError(), response -> {
+                                log.warn("Клиентская ошибка для пользователя {}: статус {}", login, response.statusCode());
+                                return Mono.error(new CashOperationException("Счет пользователя %s не найдет: " + login));
+                            })
+                            .onStatus(status -> status.is5xxServerError(), response -> {
+                                log.error("Серверная ошибка для пользователя {}: статус {}", login, response.statusCode());
+                                return Mono.error(new CashOperationException("Сервис снятия наличных недоступен"));
+                            })
+                            .toBodilessEntity()
+                            .doOnError(error -> log.error("Ошибка при обналичивании денежных средств дли пользователя {}: {}", login, error.getMessage()));
+                })
+                .doOnSuccess(value -> log.info("Пользователь {} успешно обналичил денежные средства", login))
+                .doOnError(error -> log.warn("Ошибка при выполнении операции обналичивании денежных средств {}", error.getMessage()));
+    }
+}

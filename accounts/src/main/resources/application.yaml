@@ -10,15 +10,14 @@ spring:
 
   cloud:
     consul:
-      host: localhost
+      host: consul
       port: 8500
       discovery:
         enabled: true
         health-check-path: /actuator/health
         service-name: accounts
-
   datasource:
-    url: jdbc:mysql://localhost:3306/studyDB?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://host.docker.internal:3306/studyDB?useSSL=false&serverTimezone=UTC
     username: root
     password: 19931012
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -30,11 +29,24 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
     show-sql: true
+
   security:
     oauth2:
+      client:
+        provider:
+          my-provider-keycloak:
+            issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
+        registration:
+          keycloak:
+            authorizationGrantType: client_credentials
+            provider: my-provider-keycloak
+            client-id: api-gateway
+            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
+            redirect-uri: ${APP_BASE_URL:http://localhost:8090}/login/oauth2/code/{registrationId}
+            scope: openid, profile, email
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8180/realms/bank
+          issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
 clients:
   notification-client:
     base-url: ${NOTIFICATION_CLIENT_BASE_URL:http://localhost:8090/api/notification}

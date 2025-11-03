@@ -23,11 +23,10 @@ spring:
 
   cloud:
     consul:
-      host: consul
+      host: localhost
       port: 8500
       discovery:
         enabled: true
-        hostname: exchange
         health-check-path: /actuator/health
         service-name: exchange
   security:

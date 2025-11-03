@@ -4,12 +4,9 @@ import com.bank.transfer.config.properties.ClientProperties;
 import com.bank.transfer.dto.AccountBalanceUpdateRequest;
 import com.bank.transfer.dto.UserAccountDto;
 import com.bank.transfer.exception.TransferOperationException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 

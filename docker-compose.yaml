@@ -74,8 +74,6 @@ services:
       - EXCHANGE_CLIENT_BASE_URL=http://gateway:8090/api/exchange
     depends_on:
       - consul
-    #    extra_hosts:
-    #      - "host.docker.internal:host-gateway"
     networks:
       - bank-network
 
@@ -104,6 +102,23 @@ services:
     depends_on:
       - consul
       - keycloak
+    networks:
+      - bank-network
+
+  accounts:
+    build:
+      context: ./accounts
+      dockerfile: dockerfile
+    environment:
+      - spring.cloud.consul.host=consul
+      - spring.cloud.consul.port=8500
+      - ISSUER_URL=http://keycloak:8080/realms/bank
+      - NOTIFICATION_CLIENT_BASE_URL=http://gateway:8090/api/notification
+    depends_on:
+      - consul
+      - keycloak
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - bank-network
 
@@ -142,7 +157,6 @@ services:
     networks:
       - bank-network
 
-
   front-ui:
     build:
       context: ./front-ui
@@ -151,6 +165,8 @@ services:
       - ISSUER_URL=http://host.docker.internal:8180/realms/bank
       - USER_CLIENT_BASE_URL=http://gateway:8090/api/accounts
       - EXCHANGE_CLIENT_BASE_URL=http://gateway:8090/api/exchange
+      - TRANSFER_CLIENT_BASE_URL=http://localhost:8090/api/transfers
+      - CASH_CLIENT_BASE_URL=http://localhost:8090/api/cash
     #    depends_on:
     #      - keycloak
     #      - consul

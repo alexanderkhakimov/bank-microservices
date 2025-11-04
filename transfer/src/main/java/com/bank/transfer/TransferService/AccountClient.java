@@ -6,9 +6,6 @@ import com.bank.transfer.dto.UserAccountDto;
 import com.bank.transfer.exception.TransferOperationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
@@ -29,7 +26,7 @@ public class AccountClient {
 
         try {
             final var userAccount = restClient.get()
-                    .uri("/{login}", login)  // ← Убедитесь что путь правильный!
+                    .uri("/{login}", login)
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError(), (request, response) -> {
                         log.error("Клиентская ошибка {} при запросе аккаунта пользователя {}",

@@ -18,8 +18,8 @@ public class CashService {
     private final AccountClient accountClient;
 
     public void processCashOperation(String login, @Valid CashRequest cashRequest) {
-        var userAccount = accountClient.getUserAccount(login);
-        var balance = userAccount.balances().stream()
+        final var userAccount = accountClient.getUserAccount(login);
+        final var balance = userAccount.balances().stream()
                 .filter(b -> b.currency().equals(cashRequest.currency()))
                 .findFirst()
                 .orElseThrow(() -> new CashOperationException("Счёт в валюте " + cashRequest.currency() + " не существует"));

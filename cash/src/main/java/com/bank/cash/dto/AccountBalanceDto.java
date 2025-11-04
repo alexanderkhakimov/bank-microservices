@@ -1,13 +1,13 @@
 package com.bank.cash.dto;
 
+import com.bank.cash.enums.Currency;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 
 @Builder
 public record AccountBalanceDto(
-        Long id,
-        String currency,
+        Currency currency,
         BigDecimal balance,
         boolean isExists
 ) {}

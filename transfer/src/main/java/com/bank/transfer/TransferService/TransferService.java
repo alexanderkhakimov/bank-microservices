@@ -44,12 +44,12 @@ public class TransferService {
 
             BigDecimal convertedAmount = request.amount();
             if (!fromBalance.currency().equals(toBalance.currency())) {
-                log.info("🔄 Конвертируем валюту: {} {} -> {} {}",
+                log.info("Конвертируем валюту: {} {} -> {} {}",
                         request.amount(), request.fromCurrency(),
                         request.toCurrency(), request.toCurrency());
                 convertedAmount = exchangeClient.convert(request.fromCurrency(), request.toCurrency(), request.amount());
             } else {
-                log.info("✅ Конвертация не требуется - валюты одинаковые");
+                log.info("Конвертация не требуется - валюты одинаковые");
             }
 
             log.info("Списываем с {}: {} {} -> {} {}",
@@ -62,7 +62,7 @@ public class TransferService {
             try {
                 accountClient.updateBalance(login, request.fromCurrency(), fromBalance.balance().subtract(convertedAmount));
                 accountClient.updateBalance(request.toLogin(), request.toCurrency(), toBalance.balance().add(convertedAmount));
-                log.info("✅ Перевод успешно выполнен!");
+                log.info("Перевод успешно выполнен!");
             } catch (Exception e) {
                 log.error("Ошибка при выполнении перевода: {}", e.getMessage(), e);
                 throw new RuntimeException("Ошибка при выполнении перевода", e);

@@ -12,10 +12,7 @@ import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcCli
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationSuccessHandler;
-import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
-
-import java.net.URI;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -29,7 +26,7 @@ public class SecurityConfig {
         return http
                 .authorizeExchange(auth -> auth
                         .pathMatchers("/actuator/**","/signup", "/login","/logout-page").permitAll()
-                        .anyExchange().authenticated()
+                        .anyExchange().permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")

@@ -23,16 +23,38 @@ public class AccountClient {
 
     public UserAccountDto getUserAccount(String login) {
         log.info("Запрашиваем аккаунт пользователя {}", login);
+
         try {
             final var userAccount = restClient.get()
                     .uri("/{login}", login)
                     .retrieve()
+                    .onStatus(status -> status.is4xxClientError(), (request, response) -> {
+                        log.error("Клиентская ошибка {} при запросе аккаунта пользователя {}",
+                                response.getStatusCode(), login);
+                        throw new CashOperationException("Клиентская ошибка при запросе аккаунта: " + response.getStatusCode());
+                    })
+                    .onStatus(status -> status.is5xxServerError(), (request, response) -> {
+                        log.error("Серверная ошибка {} при запросе аккаунта пользователя {}",
+                                response.getStatusCode(), login);
+                        throw new CashOperationException("Серверная ошибка при запросе аккаунта: " + response.getStatusCode());
+                    })
                     .body(UserAccountDto.class);
-            if (userAccount == null || userAccount.balances() == null) {
-                throw new CashOperationException("Пользователь или его счета не найдены: " + login);
+
+            if (userAccount == null) {
+                log.warn("Получен null ответ для пользователя {}", login);
+                throw new CashOperationException("Получен пустой ответ для пользователя: " + login);
             }
+
+            if (userAccount.balances() == null || userAccount.balances().isEmpty()) {
+                log.warn("У пользователя {} нет счетов или balances=null", login);
+                throw new CashOperationException("У пользователя нет счетов: " + login);
+            }
+
+            log.info("Успешно получен аккаунт пользователя {}: {}", login, userAccount);
             return userAccount;
-        } catch (Exception e) {
+
+        }catch (Exception e) {
+            log.error("Неизвестная ошибка при запросе аккаунта пользователя {}: {}", login, e.getMessage(), e);
             throw new CashOperationException("Не удалось получить данные счёта для пользователя: " + login, e);
         }
     }

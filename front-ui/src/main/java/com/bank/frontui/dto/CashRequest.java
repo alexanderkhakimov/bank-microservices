@@ -12,6 +12,6 @@ import java.math.BigDecimal;
 public record CashRequest(
         @NotBlank(message = "Валюта обязательна") String currency,
         @NotNull(message = "Сумма обязательна") @Positive(message = "Сумма должна быть положительной") BigDecimal value,
-        @NotBlank(message = "Действие обязательно") CashAction action
+        @NotNull(message = "Действие обязательно") CashAction action
 ) {
 }

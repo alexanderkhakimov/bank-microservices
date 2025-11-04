@@ -122,7 +122,7 @@ public class RateControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isOk()
         ).andExpect(jsonPath("$.length()").value(3)
-        ).andExpect(jsonPath("$[1].currency").value("Доллар")
+        ).andExpect(jsonPath("$[1].currency").value("USD")
         ).andExpect(jsonPath("$[1].value").value(1.25));
 
         verify(rateService, times(1)).getRatesAll();

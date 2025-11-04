@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: notification-service
+    name: notifications
 
   config:
     import: "optional:consul:"

@@ -62,7 +62,7 @@ class ExchangeClientTest {
         when(responseSpec.onStatus(any(), any())).thenReturn(responseSpec);
         when(responseSpec.body(any(ParameterizedTypeReference.class))).thenReturn(rates);
 
-        BigDecimal result = exchangeClient.convert(Currency.USD.getTitle(), Currency.EUR.getTitle(), new BigDecimal("100"));
+        BigDecimal result = exchangeClient.convert(Currency.USD.name(), Currency.EUR.name(), new BigDecimal("100"));
 
         assertEquals(new BigDecimal("90.00"), result);
     }

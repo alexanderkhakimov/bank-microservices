@@ -15,11 +15,11 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/{login}/cash")
+@RequestMapping("/api/cash")
 public class CashController {
     private final CashService cashService;
 
-    @PostMapping
+    @PostMapping("/user/{login}/cash")
     public ResponseEntity<String> processCashOperation(
             @PathVariable String login,
             @Valid @RequestBody CashRequest cashRequest

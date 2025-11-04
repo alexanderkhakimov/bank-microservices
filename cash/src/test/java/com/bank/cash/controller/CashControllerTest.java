@@ -55,7 +55,7 @@ public class CashControllerTest {
 
         doNothing().when(cashService).processCashOperation(eq(login), any(CashRequest.class));
 
-        mockMvc.perform(post("/user/{login}/cash", login)
+        mockMvc.perform(post("/api/cash/user/{login}/cash", login)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(cashRequest)))
@@ -72,7 +72,7 @@ public class CashControllerTest {
                 .action(null)
                 .build();
 
-        mockMvc.perform(post("/user/{login}/cash", login)
+        mockMvc.perform(post("/api/cash/user/{login}/cash", login)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(cashRequest)))
@@ -91,7 +91,7 @@ public class CashControllerTest {
         doThrow(new RuntimeException("Service error"))
                 .when(cashService).processCashOperation(eq(login), any());
 
-        mockMvc.perform(post("/user/{login}/cash", login)
+        mockMvc.perform(post("/api/cash/user/{login}/cash", login)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(cashRequest)))

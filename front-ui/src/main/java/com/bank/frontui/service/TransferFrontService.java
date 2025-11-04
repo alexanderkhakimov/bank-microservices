@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -39,7 +40,8 @@ public class TransferFrontService {
                         return Mono.error(new AuthenticationException("Не действительный токен"));
                     }
                     return webClient.post()
-                            .uri("/{login}/transfer", login)
+                            .uri("/user/{login}/transfer", login)
+                            .contentType(MediaType.APPLICATION_JSON)
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                             .bodyValue(request)
                             .retrieve()

@@ -39,7 +39,7 @@ clients:
   user-client:
     base-url: ${USER_CLIENT_BASE_URL:http://localhost:8090/api/accounts}
   transfer-client:
-    base-url: ${TRANSFER_CLIENT_BASE_URL:http://localhost:8090/api/transfers}
+    base-url: ${TRANSFER_CLIENT_BASE_URL:http://localhost:8090/api/transfer}
   cash-client:
     base-url: ${CASH_CLIENT_BASE_URL:http://localhost:8090/api/cash}
   exchange-client:
@@ -57,4 +57,9 @@ management:
 logging:
   level:
     org.springframework.security: DEBUG
-    com.bank.frontui: DEBUG
+    com.bank.frontui: TRACE
+    org.springframework.web.reactive: TRACE
+    org.springframework.web.reactive.function.server: TRACE
+    org.springframework.web.reactive.result.method: TRACE
+    org.springframework.boot.autoconfigure.web.reactive: TRACE
+    org.springframework.web.reactive.result.method.annotation: DEBUG

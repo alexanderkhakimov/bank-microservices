@@ -6,6 +6,7 @@ import com.bank.frontui.dto.CashRequest;
 import com.bank.frontui.exception.CashOperationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,7 +28,7 @@ public class CashFrontService {
                 .build();
     }
 
-    public Mono<ResponseEntity<Void>> processCashOperation(String login, CashFormRequest request) {
+    public Mono<ResponseEntity<Void>> processCashOperation(CashFormRequest request, String login) {
         final var cashRequest = CashRequest.builder()
                 .currency(request.currency())
                 .value(BigDecimal.valueOf(request.value()))
@@ -42,6 +43,7 @@ public class CashFrontService {
                     }
                     return webClient.post()
                             .uri("/user/{login}/cash", login)
+                            .contentType(MediaType.APPLICATION_JSON)
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                             .bodyValue(request)
                             .retrieve()

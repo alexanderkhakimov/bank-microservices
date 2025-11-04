@@ -4,6 +4,7 @@ import com.bank.transfer.TransferService.TransferService;
 import com.bank.transfer.dto.TransferRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@AllArgsConstructor
-@RequestMapping("/{login}/transfer")
+@RequiredArgsConstructor
+@RequestMapping("/api/transfer")
 public class TransferController {
     private final TransferService transferService;
 
-    @PostMapping
+    @PostMapping("/user/{login}/transfer")
     public ResponseEntity<String> processTransferOperation(
             @PathVariable String login,
             @Valid @RequestBody TransferRequest request

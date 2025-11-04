@@ -7,6 +7,16 @@ plugins {
 allprojects {
 }
 
+tasks.register("installAll") {
+    group = 'Build'
+    description = 'Собирает все модули проекта'
+    subprojects.each { subproject ->
+        if (subproject.tasks.findByName('build') != null) {
+            dependsOn ":${subproject.name}:build"
+        }
+    }
+}
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'

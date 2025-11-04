@@ -46,7 +46,7 @@ class TransferControllerTest {
         final var login = "userTest";
         final var request = new TransferRequest("USD", "EUR", new BigDecimal("100.0"), "userTest");
 
-        mockMvc.perform(post("/{login}/transfer", login)
+        mockMvc.perform(post("/api/transfer/user/{login}/transfer", login)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -58,7 +58,7 @@ class TransferControllerTest {
         String login = "user123";
         final var invalidRequest = new TransferRequest("", "", new BigDecimal("-100"), "");
 
-        mockMvc.perform(post("/{login}/transfer", login)
+        mockMvc.perform(post("/api/transfer/user/{login}/transfer", login)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequest)))
@@ -73,7 +73,7 @@ class TransferControllerTest {
         doThrow(new RuntimeException("Service error"))
                 .when(transferService).processTransferOperation(eq(login), any());
 
-        mockMvc.perform(post("/{login}/transfer", login)
+        mockMvc.perform(post("/api/transfer/user/{login}/transfer", login)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

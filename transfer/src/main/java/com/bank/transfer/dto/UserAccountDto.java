@@ -7,9 +7,10 @@ import java.util.List;
 
 @Builder
 public record UserAccountDto(
-        Long id,
         String login,
         String name,
-        LocalDate birthday,
+        String email,
+        LocalDate birthdate,
         List<AccountBalanceDto> balances
-){}
+) {
+}

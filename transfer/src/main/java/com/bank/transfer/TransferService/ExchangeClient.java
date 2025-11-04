@@ -36,19 +36,21 @@ public class ExchangeClient {
 
     public BigDecimal convert(String fromCurrency, String toCurrency, BigDecimal amount) {
         final var rates = getRates();
+        log.info("Получены курсы валют {}", rates.toString());
         final var from = getExchangeRate(rates, fromCurrency);
         final var to = getExchangeRate(rates, toCurrency);
 
         final var amountToRub = amount.multiply(from);
         final var result = amountToRub.divide(to, 6, RoundingMode.HALF_UP);
-        log.debug("Конвернтация прошла {} {} to {} {} = {}",
+        log.info("Конвернтация прошла {} {} to {} {} = {}",
                 amount, fromCurrency, result, toCurrency, result);
         return result.setScale(2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal getExchangeRate(List<RateResponseDto> rates, String currency) {
+        log.info("Ищем {} в списке {}", currency, rates.toString());
         return rates.stream()
-                .filter(rate -> rate.getCurrency().getTitle().equals(currency))
+                .filter(rate -> rate.getCurrency().name().equals(currency))
                 .map(RateResponseDto::getValue)
                 .findFirst()
                 .orElseThrow(() -> {

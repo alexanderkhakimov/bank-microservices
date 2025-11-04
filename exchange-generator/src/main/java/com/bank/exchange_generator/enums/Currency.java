@@ -12,7 +12,6 @@ public enum Currency {
         this.title = title;
     }
 
-    @JsonValue
     public String getTitle() {
         return title;
     }

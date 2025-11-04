@@ -3,13 +3,13 @@ server:
 
 spring:
   application:
-    name: transfer-service
+    name: transfer
   config:
     import: "optional:consul:"
 
   cloud:
     consul:
-      host: localhost
+      host: consul
       port: 8500
       discovery:
         enabled: true
@@ -31,7 +31,7 @@ spring:
             scope: openid, profile, email
       resourceserver:
         jwt:
-          issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
+          jwk-set-uri: ${JWT_SET_URL:http://keycloak:8080/realms/bank/protocol/openid-connect/certs}
 
 clients:
   user-client:
@@ -51,6 +51,9 @@ management:
   endpoint:
     health:
       show-details: always
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
 
 logging:
   level:

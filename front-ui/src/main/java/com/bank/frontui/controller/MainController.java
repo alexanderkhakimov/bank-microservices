@@ -50,7 +50,7 @@ public class MainController {
         model.addAttribute("name", account.name());
         model.addAttribute("birthdate", account.birthdate());
         log.info("Счета пользователя {}", account.balances());
-        List<AccountBalanceDto> balances = createBalances(account);
+        final var balances = createBalances(account);
         model.addAttribute("accounts", balances);
 
         if (balances.stream().noneMatch(AccountBalanceDto::isExists)) {
@@ -65,7 +65,7 @@ public class MainController {
         log.error("Ошибка при загрузке аккаунта {}: {}", login, e.getMessage());
         model.addAttribute("userAccountsError", "Не удалось загрузить данные аккаунта: " + e.getMessage());
 
-        List<AccountBalanceDto> defaultBalances = createDefaultBalances();
+        final var defaultBalances = createDefaultBalances();
         model.addAttribute("accounts", defaultBalances);
         model.addAttribute("accountsMessage", "Ошибка загрузки счетов. Выберите валюту и сохраните.");
 

@@ -3,13 +3,13 @@ server:
 
 spring:
   application:
-    name: cash-service
+    name: cash
   config:
     import: "optional:consul:"
 
   cloud:
     consul:
-      host: localhost
+      host: consul
       port: 8500
       discovery:
         enabled: true
@@ -31,7 +31,7 @@ spring:
             scope: openid, profile, email
       resourceserver:
         jwt:
-          issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
+          jwk-set-uri: ${JWT_SET_URL:http://keycloak:8080/realms/bank/protocol/openid-connect/certs}
 
 clients:
   user-client:
@@ -40,6 +40,9 @@ clients:
     base-url: ${BLOCKER_CLIENT_BASE_URL:http://localhost:8090/api/blocker}
   notification-client:
     base-url: ${NOTIFICATION_CLIENT_BASE_URL:http://localhost:8090/api/notification}
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
 
 management:
   endpoints:

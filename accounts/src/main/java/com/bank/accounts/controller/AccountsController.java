@@ -90,12 +90,5 @@ public class AccountsController {
         accountService.deleteBalance(authentication, currency);
         return ResponseEntity.noContent().build();
     }
-
-//    @GetMapping("/me/balances")
-//    public ResponseEntity<List<AccountBalance>> getBalances(Authentication authentication) {
-//
-//        List<AccountBalance> balances = accountService.getBalances(authentication);
-//        return ResponseEntity.ok(balances);
-//    }
 }
 

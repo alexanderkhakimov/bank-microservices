@@ -140,7 +140,7 @@ services:
     depends_on:
       - consul
       - keycloak
-#      - accounts
+      - accounts
     networks:
       - bank-network
 
@@ -156,8 +156,6 @@ services:
       - ISSUER_URL=http://keycloak:8080/realms/bank
     depends_on:
       - consul
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
       - bank-network
 
@@ -190,9 +188,9 @@ services:
       - EXCHANGE_CLIENT_BASE_URL=http://gateway:8090/api/exchange
       - TRANSFER_CLIENT_BASE_URL=http://gateway:8090/api/transfer
       - CASH_CLIENT_BASE_URL=http://gateway:8090/api/cash
-    #    depends_on:
-    #      - keycloak
-    #      - consul
+    depends_on:
+      - keycloak
+      - consul
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:

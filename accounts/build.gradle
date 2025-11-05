@@ -19,3 +19,7 @@ dependencies {
 bootJar {
     archiveFileName = "${project.name}.jar"
 }
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,46 @@
+server:
+  port: {{ .Values.global.ports.accountService}}
+
+spring:
+  application:
+    name: {{ .Chart.Name }}
+
+  datasource:
+    url: "jdbc:postgresql://{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}"
+    username:  {{ .Values.database.username | quote }}
+    password:  {{ .Values.database.password | quote }}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+  security:
+    oauth2:
+      client:
+        provider:
+          my-provider-keycloak:
+            issuer-uri: {{ .Values.global.keycloak.issuerUrl | quote }}
+        registration:
+          keycloak:
+            authorizationGrantType: client_credentials
+            provider: my-provider-keycloak
+            client-id: api-gateway
+            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
+            redirect-uri: ${APP_BASE_URL:http://localhost:8090}/login/oauth2/code/{registrationId}
+            scope: openid, profile, email
+      resourceserver:
+        jwt:
+          jwk-set-uri: {{ .Values.global.keycloak.jwtSetUrl | quote }}
+clients:
+  notification-client:
+    base-url: {{ .Values.global.baseUrl.notificationService | quote }}
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.bank.accounts: INFO

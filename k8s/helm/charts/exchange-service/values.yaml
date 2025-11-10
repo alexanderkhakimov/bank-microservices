@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image:
+  repository: exchange
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+database:
+  host: "postgresql"
+  port: 5432
+  name: "exchange_db"
+  username: "exchange_user"
+  password: "exchange123"

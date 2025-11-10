@@ -1,0 +1,39 @@
+{
+  "id": "bank",
+  "realm": "bank",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "api-gateway",
+      "name": "api-gateway",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e",
+      "redirectUris": ["http://localhost:8090/*"],
+      "webOrigins": ["*"],
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "testuser",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "test@example.com",
+      "firstName": "Test",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "12345",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

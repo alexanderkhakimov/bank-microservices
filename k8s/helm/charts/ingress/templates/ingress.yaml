@@ -1,0 +1,94 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bank-ingress
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ .Values.ingress.host | default "bank.local" }}
+      http:
+        paths:
+          # Keycloak
+          - path: /auth(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: {{ .Values.global.ports.keycloak }}
+
+          # Accounts Service
+          - path: /api/accounts(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: accounts-service
+                port:
+                  number: {{ .Values.global.ports.accountService }}
+
+          # Blocker Service
+          - path: /api/blocker(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: blocker-service
+                port:
+                  number: {{ .Values.global.ports.blockerService }}
+
+          # Cash Service
+          - path: /api/cash(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: cash-service
+                port:
+                  number: {{ .Values.global.ports.cashService }}
+
+          # Exchange Service
+          - path: /api/exchange(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: exchange-service
+                port:
+                  number: {{ .Values.global.ports.exchangeService }}
+
+          # Exchange Generator Service
+          - path: /api/exchange-generator(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: exchange-generator-service
+                port:
+                  number: {{ .Values.global.ports.exchangeGeneratorService }}
+
+          # Notifications Service
+          - path: /api/notifications(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: notifications-service
+                port:
+                  number: {{ .Values.global.ports.notificationsService }}
+
+          # Transfer Service
+          - path: /api/transfer(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: transfer-service
+                port:
+                  number: {{ .Values.global.ports.transferService }}
+
+          # Front UI Service - корневой путь
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: front-ui-service
+                port:
+                  number: {{ .Values.global.ports.frontUiService }}

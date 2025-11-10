@@ -6,7 +6,31 @@ plugins {
 
 allprojects {
 }
+tasks.register("dockerBuildAll") {
+    group = 'Docker'
+    description = 'Собирает все Docker образы проекта'
 
+    subprojects.each { subproject ->
+        def dockerFile = new File(subproject.projectDir, 'dockerfile')
+        if (dockerFile.exists()) {
+            def dockerTaskName = ":${subproject.name}:dockerBuild"
+            if (!subproject.tasks.findByName('dockerBuild')) {
+                def dockerTask = subproject.tasks.register("dockerBuild") {
+                    group = 'Docker'
+                    description = "Собирает Docker образ для ${subproject.name}"
+
+                    doLast {
+                        exec {
+                            workingDir subproject.projectDir
+                            commandLine 'docker', 'build', '-t', "${subproject.name}:latest", '.'
+                        }
+                    }
+                }
+            }
+            dependsOn dockerTaskName
+        }
+    }
+}
 tasks.register("installAll") {
     group = 'Build'
     description = 'Собирает все модули проекта'
@@ -15,6 +39,7 @@ tasks.register("installAll") {
             dependsOn ":${subproject.name}:build"
         }
     }
+    finalizedBy dockerBuildAll
 }
 
 subprojects {
@@ -35,20 +60,18 @@ subprojects {
     ext {
         set('lombokVersion', "1.18.30")
         set('keycloakVersion', "23.0.0")
-        set('connectorJVersion', "8.1.0")
-        set('springCloudVersion', "2025.0.0")
+//        set('springCloudVersion', "2025.0.0")
         set('springBootVersion', "3.5.4")
     }
 
     dependencyManagement {
         imports {
             mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
-            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+//            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
         }
 
         dependencies {
             dependency "org.keycloak:keycloak-spring-boot-starter:${keycloakVersion}"
-            dependency "com.mysql:mysql-connector-j:${connectorJVersion}"
         }
     }
 

@@ -1,0 +1,14 @@
+replicaCount: 1
+
+image:
+  repository: postgres
+  tag: "15"
+  pullPolicy: IfNotPresent
+
+database:
+  name: keycloak
+  username: keycloak
+  password: "keycloak123"
+
+service:
+  type: ClusterIP

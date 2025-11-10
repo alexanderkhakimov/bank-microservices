@@ -1,0 +1,38 @@
+server:
+  port: {{ .Values.global.ports.frontUiService }}
+
+  spring:
+    application:
+      name: {{ .Chart.Name }}
+    security:
+      oauth2:
+        client:
+          provider:
+            my-provider-keycloak:
+              issuer-uri: {{ .Values.global.keycloak.issuerUrl | quote }}
+          registration:
+            keycloak:
+              authorizationGrantType: client_credentials
+              provider: my-provider-keycloak
+              client-id: api-gateway
+              client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
+              redirect-uri: ${APP_BASE_URL:http://localhost:8090}/login/oauth2/code/{registrationId}
+              scope: openid, profile, email
+clients:
+  user-client:
+    base-url: {{ .Values.global.baseUrl.accountService | quote }}
+  transfer-client:
+    base-url: {{ .Values.global.baseUrl.transferService | quote }}
+  cash-client:
+    base-url: {{ .Values.global.baseUrl.cashService | quote }}
+  exchange-client:
+    base-url: {{ .Values.global.baseUrl.exchangeService | quote }}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

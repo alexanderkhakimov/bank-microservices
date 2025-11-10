@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image:
+  repository: accounts
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+database:
+  host: "postgresql"
+  port: 5432
+  name: "account_db"
+  username: "account_user"
+  password: "account123"

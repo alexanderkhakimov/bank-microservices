@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Chart.Name }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.global.ports.notificationsService }}
+    targetPort: {{ .Values.global.ports.notificationsService }}
+    protocol: TCP
+  selector:
+    app: {{ .Chart.Name }}

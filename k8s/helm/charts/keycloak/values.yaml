@@ -1,0 +1,22 @@
+replicaCount: 1
+
+image:
+  repository: quay.io/keycloak/keycloak
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8180
+
+keycloak:
+  adminUser: admin
+  adminPassword: admin
+  realmConfig: "bank-realm"
+
+database:
+  host: "postgresql"
+  port: 5432
+  name: "keycloak"
+  username: "keycloak"
+  password: "keycloak123"

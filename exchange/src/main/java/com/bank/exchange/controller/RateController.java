@@ -3,7 +3,6 @@ package com.bank.exchange.controller;
 import com.bank.exchange.dto.RateResponseDto;
 import com.bank.exchange.dto.RateUiResponseDto;
 import com.bank.exchange.dto.UpdateRateRequestDto;
-import com.bank.exchange.model.Rate;
 import com.bank.exchange.service.RateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

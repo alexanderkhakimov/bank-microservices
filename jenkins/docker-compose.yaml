@@ -1,0 +1,29 @@
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jenkins-cicd
+    user: root
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false -Xmx2048m
+      - KUBECONFIG=/home/jenkins/.kube/config
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - //var/run/docker.sock:/var/run/docker.sock
+      - //c/Users/SurfaceBook/.kube/config:/home/jenkins/.kube/config:rw
+    extra_hosts:
+      - "kubernetes.docker.internal:host-gateway"
+      - "host.docker.internal:host-gateway"
+    networks:
+      - jenkins-net
+
+volumes:
+  jenkins_data:
+
+networks:
+  jenkins-net:
+    driver: bridge

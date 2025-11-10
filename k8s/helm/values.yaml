@@ -1,0 +1,121 @@
+global:
+  namespace: bank-dev
+  springProfiles: "dev"
+  keycloak:
+    issuerUrl: "http://keycloak:8180/realms/bank"
+    jwtSetUrl: "http://keycloak:8180/realms/bank/protocol/openid-connect/certs"
+  ports:
+    postgresql: 5432
+    keycloak: 8180
+    accountService: 8081
+    blockerService: 8082
+    cashService: 8083
+    exchangeService: 8084
+    exchangeGeneratorService: 8085
+    frontUiService: 8086
+    notificationsService: 8087
+    transferService: 8088
+  baseUrl:
+    exchangeService: "http://exchange-service:{{ .Values.global.ports.exchangeService }}/api/exchange"
+    accountService: "http://account-service:{{ .Values.global.ports.accountService }}/api/accounts"
+    blockerService: "http://blocker-service:{{ .Values.global.ports.blockerService }}/api/blocker"
+    notificationService: "http://notification-service:{{ .Values.global.ports.notificationsService }}/api/notification"
+    cashService: "http://notification-service:{{ .Values.global.ports.notificationsService }}/api/cash"
+    transferService: "http://notification-service:{{ .Values.global.ports.notificationsService }}/api/transfer"
+
+ingress:
+  host: "bank.local"
+
+postgresql:
+  replicaCount: 1
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+  database:
+    name: keycloak
+    username: keycloak
+    password: "keycloak123"
+  databaseServices:
+  - name: account_db
+    username: account_user
+    password: "account123"
+  - name: exchange_db
+    username: exchange_user
+    password: "exchange123"
+
+keycloak:
+  replicaCount: 1
+  image:
+    repository: quay.io/keycloak/keycloak
+    tag: "22.0.0"
+    pullPolicy: IfNotPresent
+  keycloak:
+    adminUser: admin
+    adminPassword: "admin"
+  database:
+    host: "postgresql"
+    port: 5432
+    name: "keycloak"
+    username: "keycloak"
+    password: "keycloak123"
+accounts-service:
+  replicaCount: 1
+  image:
+    repository: accounts
+    tag: latest
+    pullPolicy: IfNotPresent
+  database:
+    host: "postgresql"
+    port: 5432
+    name: "account_db"
+    username: "account_user"
+    password: "account123"
+blocker-service:
+  replicaCount: 1
+  image:
+    repository: blocker
+    tag: latest
+    pullPolicy: IfNotPresent
+cash-service:
+  replicaCount: 1
+  image:
+    repository: cash
+    tag: latest
+    pullPolicy: IfNotPresent
+exchange-service:
+  replicaCount: 1
+  image:
+    repository: exchange
+    tag: latest
+    pullPolicy: IfNotPresent
+  database:
+    host: "postgresql"
+    port: 5432
+    name: "exchange_db"
+    username: "exchange_user"
+    password: "exchange123"
+exchange-generator-service:
+  replicaCount: 1
+  image:
+    repository: exchange-generator
+    tag: latest
+    pullPolicy: IfNotPresent
+front-ui-service:
+  replicaCount: 1
+  image:
+    repository: front-ui
+    tag: latest
+    pullPolicy: IfNotPresent
+notifications-service:
+  replicaCount: 1
+  image:
+    repository: notifications
+    tag: latest
+    pullPolicy: IfNotPresent
+transfer-service:
+  replicaCount: 1
+  image:
+    repository: transfer
+    tag: latest
+    pullPolicy: IfNotPresent

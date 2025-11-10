@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Values.global.namespace }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.global.ports.postgresql }}
+    targetPort: {{ .Values.global.ports.postgresql }}
+  selector:
+    app: {{ .Chart.Name }}

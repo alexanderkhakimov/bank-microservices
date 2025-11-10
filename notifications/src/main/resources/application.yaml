@@ -5,17 +5,17 @@ spring:
   application:
     name: notifications
 
-  config:
-    import: "optional:consul:"
-
-  cloud:
-    consul:
-      host: consul
-      port: 8500
-      discovery:
-        enabled: true
-        health-check-path: /actuator/health
-        service-name: notification-service
+#  config:
+#    import: "optional:consul:"
+#
+#  cloud:
+#    consul:
+#      host: consul
+#      port: 8500
+#      discovery:
+#        enabled: true
+#        health-check-path: /actuator/health
+#        service-name: notification-service
   security:
     oauth2:
       resourceserver:

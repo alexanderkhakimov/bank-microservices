@@ -1,0 +1,40 @@
+server:
+  port: {{ .Values.global.ports.exchangeGeneratorService}}
+
+spring:
+  application:
+    name: {{ .Chart.Name }}
+
+  security:
+    oauth2:
+      client:
+        provider:
+          my-provider-keycloak:
+            issuer-uri: {{ .Values.global.keycloak.issuerUrl | quote }}
+        registration:
+          keycloak:
+            authorizationGrantType: client_credentials
+            provider: my-provider-keycloak
+            client-id: api-gateway
+            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
+            redirect-uri: ${APP_BASE_URL:http://localhost:8090}/login/oauth2/code/{registrationId}
+            scope: openid, profile, email
+      resourceserver:
+        jwt:
+          issuer-uri: {{ .Values.global.keycloak.issuerUrl | quote }}
+
+clients:
+  notification-client:
+    base-url: {{ .Values.global.baseUrl.notificationService | quote }}
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

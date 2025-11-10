@@ -1,0 +1,9 @@
+replicaCount: 1
+
+image:
+  repository: cash
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP

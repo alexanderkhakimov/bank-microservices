@@ -5,30 +5,30 @@ spring:
   application:
     name: exchange
   datasource:
-    url: jdbc:mysql://host.docker.internal:3306/studyDB?useSSL=false&serverTimezone=UTC
+    url: jdbc:postgresql://localhost:5432/exchange_db
     username: root
     password: 19931012
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
 
-  config:
-    import: "optional:consul:"
-
-  cloud:
-    consul:
-      host: localhost
-      port: 8500
-      discovery:
-        enabled: true
-        health-check-path: /actuator/health
-        service-name: exchange
+#  config:
+#    import: "optional:consul:"
+#
+#  cloud:
+#    consul:
+#      host: localhost
+#      port: 8500
+#      discovery:
+#        enabled: true
+#        health-check-path: /actuator/health
+#        service-name: exchange
   security:
     oauth2:
       client:
@@ -45,7 +45,7 @@ spring:
             scope: openid, profile, email
       resourceserver:
         jwt:
-          issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
+          jwk-set-uri: ${JWT_SET_URL:http://localhost:8180/realms/bank/protocol/openid-connect/certs}
 management:
   endpoints:
     web:

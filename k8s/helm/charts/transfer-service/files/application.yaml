@@ -1,0 +1,50 @@
+server:
+  port: {{ .Values.global.ports.transferService }}
+
+spring:
+  application:
+    name: {{ .Chart.name}}
+  security:
+    oauth2:
+      client:
+        provider:
+          my-provider-keycloak:
+            issuer-uri: {{ .Values.global.keycloak.issuerUrl | quote }}
+        registration:
+          keycloak:
+            authorizationGrantType: client_credentials
+            provider: my-provider-keycloak
+            client-id: api-gateway
+            client-secret: t0GNfKIjwDNOZdeMyP9nX2gjc7EA7c7e
+            redirect-uri: ${APP_BASE_URL:http://localhost:8090}/login/oauth2/code/{registrationId}
+            scope: openid, profile, email
+      resourceserver:
+        jwt:
+          jwk-set-uri: {{ .Values.global.keycloak.jwtSetUrl | quote }}
+
+clients:
+  user-client:
+    base-url: {{ .Values.global.baseUrl.accountService | quote }}
+  blocker-client:
+    base-url: {{ .Values.global.baseUrl.blockerService | quote }}
+  notification-client:
+    base-url: {{ .Values.global.baseUrl.notificationService | quote }}
+  exchange-client:
+    base-url: {{ .Values.global.baseUrl.exchangeService | quote }}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.bank.transfer: INFO

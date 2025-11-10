@@ -1,0 +1,9 @@
+replicaCount: 1
+
+image:
+  repository: front-ui
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP

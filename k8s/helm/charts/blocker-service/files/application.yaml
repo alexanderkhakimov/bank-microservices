@@ -1,0 +1,20 @@
+server:
+  port: {{ .Values.global.ports.blockerService }}
+
+  spring:
+    application:
+      name: {{ .Chart.Name }}
+    security:
+      oauth2:
+        resourceserver:
+          jwt:
+            issuer-uri: {{ .Values.global.keycloak.issuerUrl }}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    endpoint:
+      health:
+        show-details: always

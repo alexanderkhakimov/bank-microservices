@@ -1,0 +1,22 @@
+server:
+  port: {{ .Values.global.ports.notificationsService}}
+
+spring:
+  application:
+    name: {{ .Chart.name}}
+
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: {{ .Values.global.keycloak.issuerUrl | quote }}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+logging:
+  level:
+    com.bank.notifications: INFO

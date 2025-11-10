@@ -1,0 +1,30 @@
+jenkins:
+  systemMessage: "Jenkins CI/CD for Docker Desktop K8s"
+  numExecutors: 4
+
+security:
+  apiToken:
+    tokenGenerationOnCreationEnabled: false
+
+tool:
+  installations:
+    - name: "jdk21"
+      home: "/opt/java/openjdk"
+      properties:
+        - installSource:
+            installers:
+              - jdkInstaller:
+                  id: "jdk-21"
+                  acceptLicense: true
+    - name: "gradle"
+      home: "/usr/local/bin/gradle"
+      properties:
+        - installSource:
+            installers:
+              - gradleInstaller:
+                  id: "8.10"
+                  name: "Gradle"
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"

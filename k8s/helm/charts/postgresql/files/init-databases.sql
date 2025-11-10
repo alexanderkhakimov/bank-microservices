@@ -1,0 +1,15 @@
+CREATE USER account_user WITH PASSWORD 'account123';
+CREATE DATABASE account_db;
+GRANT ALL PRIVILEGES ON DATABASE account_db TO account_user;
+\c account_db
+GRANT ALL ON SCHEMA public TO account_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO account_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO account_user;
+
+CREATE USER exchange_user WITH PASSWORD 'exchange123';
+CREATE DATABASE exchange_db;
+GRANT ALL PRIVILEGES ON DATABASE exchange_db TO exchange_user;
+\c exchange_db
+GRANT ALL ON SCHEMA public TO exchange_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO exchange_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO exchange_user;

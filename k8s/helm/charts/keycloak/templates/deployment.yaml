@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Chart.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      initContainers:
+      - name: realm-import
+        image: busybox
+        command: [ 'sh', '-c', 'echo "Waiting for Keycloak"; sleep 30']
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        args:
+          - start-dev
+          - --db=postgres
+          - --db-url-host={{ .Values.database.host }}
+          - --db-url-port={{ .Values.database.port }}
+          - --http-port={{ .Values.global.ports.keycloak }}
+          - --db-url-database={{ .Values.database.database }}
+          - --db-username={{ .Values.database.username }}
+          - --db-password={{ .Values.database.password }}
+          - --import-realm
+        env:
+        - name: KEYCLOAK_ADMIN
+          value: {{ .Values.keycloak.adminUser }}
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: {{ .Values.keycloak.adminPassword}}
+        - name: KC_HTTP_ENABLED
+          value: "true"
+        ports:
+        - containerPort: {{ .Values.global.ports.keycloak }}
+        volumeMounts:
+        - name: realm-config
+          mountPath: /opt/keycloak/data/import
+      volumes:
+      - name: realm-config
+        configMap:
+          name: {{ .Chart.Name }}-realm

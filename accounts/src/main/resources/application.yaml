@@ -5,28 +5,28 @@ spring:
   application:
     name: accounts
 
-  config:
-    import: "optional:consul:"
-
-  cloud:
-    consul:
-      host: consul
-      port: 8500
-      discovery:
-        enabled: true
-        health-check-path: /actuator/health
-        service-name: accounts
+#  config:
+#    import: "optional:consul:"
+#
+#  cloud:
+#    consul:
+#      host: consul
+#      port: 8500
+#      discovery:
+#        enabled: true
+#        health-check-path: /actuator/health
+#        service-name: accounts
   datasource:
-    url: jdbc:mysql://host.docker.internal:3306/studyDB?useSSL=false&serverTimezone=UTC
+    url: jdbc:postgresql://localhost:5432/account_db
     username: root
     password: 19931012
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
 

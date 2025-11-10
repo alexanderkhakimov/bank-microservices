@@ -4,17 +4,17 @@ server:
 spring:
   application:
     name: cash
-  config:
-    import: "optional:consul:"
-
-  cloud:
-    consul:
-      host: localhost
-      port: 8500
-      discovery:
-        enabled: true
-        health-check-path: /actuator/health
-        service-name: cash-service
+#  config:
+#    import: "optional:consul:"
+#
+#  cloud:
+#    consul:
+#      host: localhost
+#      port: 8500
+#      discovery:
+#        enabled: true
+#        health-check-path: /actuator/health
+#        service-name: cash-service
   security:
     oauth2:
       client:

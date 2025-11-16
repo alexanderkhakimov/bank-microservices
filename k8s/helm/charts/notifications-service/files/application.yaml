@@ -9,6 +9,13 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: {{ .Values.global.keycloak.issuerUrl | quote }}
+  kafka:
+    bootstrap-servers: {{ .Values.global.kafka.bootstrapServers | default "kafka.kafka.svc.cluster.local:9092" }}
+
+kafka:
+  topic: {{ .Values.kafka.topic }}
+  group: {{ .Values.kafka.group }}
+
 management:
   endpoints:
     web:

@@ -3,9 +3,8 @@ package com.bank.exchange.controller;
 import com.bank.exchange.dto.RateResponseDto;
 import com.bank.exchange.dto.RateUiResponseDto;
 import com.bank.exchange.dto.UpdateRateRequestDto;
-import com.bank.exchange.enums.Currency;
 import com.bank.exchange.service.RateService;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.bank.kafka.enums.Currency;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,8 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -90,12 +90,12 @@ public class RateControllerTest {
         );
         when(rateService.getUiRatesAll()).thenReturn(expected);
         mockMvc.perform(get("/api/exchange/")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                ).andExpect(status().isOk()
-                ).andExpect(jsonPath("$.length()").value(3)
-                ).andExpect(jsonPath("$[1].name").value("USD")
-                ).andExpect(jsonPath("$[1].value").value(1.25));
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk()
+        ).andExpect(jsonPath("$.length()").value(3)
+        ).andExpect(jsonPath("$[1].name").value("USD")
+        ).andExpect(jsonPath("$[1].value").value(1.25));
 
         verify(rateService, times(1)).getUiRatesAll();
     }

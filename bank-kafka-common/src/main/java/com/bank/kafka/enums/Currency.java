@@ -1,6 +1,4 @@
-package com.bank.exchange.enums;
-
-import com.fasterxml.jackson.annotation.JsonValue;
+package com.bank.kafka.enums;
 
 public enum Currency {
     EUR("Евро"),

@@ -27,14 +27,16 @@ public class AccountService {
     private final AccountBalanceRepository accountBalanceRepository;
     private final UserAccountRepository userAccountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationPublisher notificationPublisher;
 
-    public AccountService(AccountBalanceRepository accountBalanceRepository, UserAccountRepository userAccountRepository, PasswordEncoder passwordEncoder) {
+    public AccountService(AccountBalanceRepository accountBalanceRepository, UserAccountRepository userAccountRepository, PasswordEncoder passwordEncoder, NotificationPublisher notificationPublisher) {
         this.accountBalanceRepository = accountBalanceRepository;
         this.userAccountRepository = userAccountRepository;
         this.passwordEncoder = passwordEncoder;
+        this.notificationPublisher = notificationPublisher;
     }
 
-    public void creatUserAccount(RegisterUserRequestDto dto) {
+    public void createUserAccount(RegisterUserRequestDto dto) {
         if (userAccountRepository.findByLogin(dto.login()).isPresent()) {
             throw new IllegalArgumentException("Логин уже существует");
         }
@@ -47,7 +49,7 @@ public class AccountService {
                 .build();
 
         userAccountRepository.save(newUserAccount);
-        //sendNotification("Новый аккаунт создан: " + login);
+        notificationPublisher.sendNotification(newUserAccount.getEmail(),"Аккант создан!");
     }
 
     public UserAccount getUserAccount(Authentication authentication) {
@@ -136,7 +138,7 @@ public class AccountService {
                 .currency(currency)
                 .build();
         accountBalanceRepository.save(balance);
-//        sendNotification("Счёт добавлен: " + currency + " для " + account.getLogin());
+        notificationPublisher.sendNotification(account.getEmail(),"Счет добавлен!");
         return balance;
     }
 
@@ -159,8 +161,7 @@ public class AccountService {
             throw new IllegalStateException("Нельзя удалить счёт с ненулевым балансом");
         }
         accountBalanceRepository.delete(balance);
-//             sendNotification("Счёт удалён: " + currency + " для " + account.getLogin());
-    }
+        notificationPublisher.sendNotification(account.getEmail(),"Счет удален!");    }
 
     public UserAccount getUserAccountByLogin(String login) {
         return userAccountRepository.findByLogin(login)

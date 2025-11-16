@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-create-topics
+  namespace: kafka
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: create-topics
+          image: bitnami/kafka:3.7
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              BOOTSTRAP=kafka.kafka.svc.cluster.local:9092
+              
+              echo "Creating topics in namespace: kafka"
+              
+              # Notifications: At least once, unordered, 3 partitions
+              kafka-topics.sh --create --if-not-exists \
+                --topic notifications \
+                --bootstrap-server $BOOTSTRAP \
+                --partitions 3 \
+                --replication-factor 1 \
+                --config retention.ms=604800000 || true
+              
+              # Exchange Generator → Exchange: At most once, ordered, 1 partition
+              kafka-topics.sh --create --if-not-exists \
+                --topic exchange-requests \
+                --bootstrap-server $BOOTSTRAP \
+                --partitions 1 \
+                --replication-factor 1 \
+                --config cleanup.policy=delete \
+                --config min.insync.replicas=1 || true
+              
+              echo "All topics ensured."
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+  backoffLimit: 4
+  ttlSecondsAfterFinished: 300

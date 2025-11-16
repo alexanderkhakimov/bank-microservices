@@ -9,14 +9,9 @@ import com.bank.accounts.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -29,7 +24,7 @@ public class AccountsController {
     @PostMapping("/register")
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterUserRequestDto dto) {
         log.info("Пользователь {} направил запрос на регистрацию", dto.login());
-        accountService.creatUserAccount(dto);
+        accountService.createUserAccount(dto);
         return ResponseEntity.ok().build();
     }
 

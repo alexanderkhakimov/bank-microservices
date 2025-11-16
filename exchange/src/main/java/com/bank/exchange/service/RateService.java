@@ -5,6 +5,7 @@ import com.bank.exchange.dto.RateUiResponseDto;
 import com.bank.exchange.dto.UpdateRateRequestDto;
 import com.bank.exchange.model.Rate;
 import com.bank.exchange.repository.RateRepository;
+import com.bank.kafka.event.ExchangeRateUpdateRequested;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RateService {
     private final RateRepository rateRepository;
+    @Transactional
+    public void updateRateFromKafka(ExchangeRateUpdateRequested event) {
+        log.info("Kafka → обновление курса: {} = {}", event.currency(), event.value());
 
+        Rate rate = rateRepository.findByCurrency(event.currency())
+                .orElse(Rate.builder().currency(event.currency()).build());
+
+        rate.setValue(event.value());
+        rateRepository.save(rate);
+    }
     @Transactional
     public void updateAll(List<UpdateRateRequestDto> dto) {
         final var rate = dto.stream()

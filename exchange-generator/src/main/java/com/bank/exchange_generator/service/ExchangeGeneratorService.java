@@ -1,7 +1,9 @@
 package com.bank.exchange_generator.service;
 
-import com.bank.exchange_generator.dto.UpdateRateRequestDto;
-import com.bank.exchange_generator.enums.Currency;
+import com.bank.kafka.enums.Currency;
+import com.bank.kafka.event.ExchangeRateUpdateRequested;
+import com.bank.kafka.producer.KafkaMessageProducer;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,31 +15,27 @@ import java.util.Random;
 
 @Service
 @EnableScheduling
+@RequiredArgsConstructor
 @Slf4j
 public class ExchangeGeneratorService {
-    private final ExchangeClient exchangeClient;
-    private final Random random;
 
-    public ExchangeGeneratorService(ExchangeClient exchangeClient) {
-        log.info("ExchangeGeneratorService инициализирован");
-        this.exchangeClient = exchangeClient;
-        this.random = new Random();
-    }
+    private final KafkaMessageProducer<ExchangeRateUpdateRequested> producer;
+    private final Random random = new Random();
 
     @Scheduled(fixedRate = 10000)
     public void updateRates() {
         try {
-            var rates = List.of(
-                    UpdateRateRequestDto.builder().currency(Currency.RUB).value(BigDecimal.ONE).build(),
-                    UpdateRateRequestDto.builder().currency(Currency.EUR).value(BigDecimal.valueOf(0.011 + random.nextDouble() * 10.0)).build(),
-                    UpdateRateRequestDto.builder().currency(Currency.USD).value(BigDecimal.valueOf(0.013 + random.nextDouble() * 10.0)).build()
-            );
-            exchangeClient.updateRates(rates);
-            log.info("Rates: {} отправлен.", rates);
+            List.of(
+                    new ExchangeRateUpdateRequested(Currency.RUB, BigDecimal.ONE),
+                    new ExchangeRateUpdateRequested(Currency.EUR, BigDecimal.valueOf(0.011 + random.nextDouble() * 10.0)),
+                    new ExchangeRateUpdateRequested(Currency.USD, BigDecimal.valueOf(0.013 + random.nextDouble() * 10.0))
+            ).forEach(event -> {
+                String key = event.currency().name();
+                producer.publish("exchange-requests", key, event);
+                log.info("Опубликовано: {} = {}", key, event.value());
+            });
         } catch (Exception e) {
-            log.error("Ошибка в Scheduler {}", e.getMessage());
+            log.error("Ошибка генерации курсов", e);
         }
     }
-
-
 }

@@ -1,6 +1,6 @@
 package com.bank.exchange.dto;
 
-import com.bank.exchange.enums.Currency;
+import com.bank.kafka.enums.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -48,7 +48,7 @@ class AccountServiceTest {
     private AccountService accountService;
 
     @Test
-    void creatUserAccount_ShouldCreateUser_WhenLoginNotExists() {
+    void createUserAccount_ShouldCreateUser_WhenLoginNotExists() {
         final var dto = new RegisterUserRequestDto(
                 "newuser", "password", "New User",
                 "new@email.com", LocalDate.of(1990, 1, 1)
@@ -57,7 +57,7 @@ class AccountServiceTest {
         when(userAccountRepository.findByLogin("newuser")).thenReturn(Optional.empty());
         when(userAccountRepository.save(any(UserAccount.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        assertDoesNotThrow(() -> accountService.creatUserAccount(dto));
+        assertDoesNotThrow(() -> accountService.createUserAccount(dto));
 
         verify(userAccountRepository).save(any(UserAccount.class));
         verify(userAccountRepository).save(argThat(user ->
@@ -67,7 +67,7 @@ class AccountServiceTest {
     }
 
     @Test
-    void creatUserAccount_ShouldThrowException_WhenLoginExists() {
+    void createUserAccount_ShouldThrowException_WhenLoginExists() {
         final var dto = new RegisterUserRequestDto(
                 "existinguser", "password", "Existing User",
                 "existing@email.com", LocalDate.of(1990, 1, 1)
@@ -77,7 +77,7 @@ class AccountServiceTest {
         when(userAccountRepository.findByLogin("existinguser")).thenReturn(Optional.of(existingUser));
 
         final var exception = assertThrows(IllegalArgumentException.class,
-                () -> accountService.creatUserAccount(dto));
+                () -> accountService.createUserAccount(dto));
         assertEquals("Логин уже существует", exception.getMessage());
     }
 

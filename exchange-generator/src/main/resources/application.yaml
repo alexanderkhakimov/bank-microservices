@@ -3,6 +3,11 @@ server:
 spring:
   application:
     name: exchange-generator
+  kafka:
+    producer:
+      acks: "1"
+      enable-idempotence: true
+      max-in-flight-requests-per-connection: 1
 
 #  config:
 #    import: "optional:consul:"

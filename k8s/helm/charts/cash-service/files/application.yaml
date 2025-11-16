@@ -4,7 +4,12 @@ server:
 spring:
   application:
     name: {{ .Chart.Name }}
+  kafka:
+    bootstrap-servers: {{ .Values.global.kafka.bootstrapServers | default "kafka.kafka.svc.cluster.local:9092" }}
 
+kafka:
+  topic: {{ .Values.kafka.topic }}
+  group: {{ .Values.kafka.group }}
   security:
     oauth2:
       client:

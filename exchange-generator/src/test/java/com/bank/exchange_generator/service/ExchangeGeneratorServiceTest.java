@@ -1,7 +1,8 @@
 package com.bank.exchange_generator.service;
 
-import com.bank.exchange_generator.dto.UpdateRateRequestDto;
-import com.bank.exchange_generator.enums.Currency;
+import com.bank.kafka.enums.Currency;
+import com.bank.kafka.event.ExchangeRateUpdateRequested;
+import com.bank.kafka.producer.KafkaMessageProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,45 +15,61 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ExchangeGeneratorServiceTest {
-    @Mock
-    private ExchangeClient exchangeClient;
-    @Captor
-    private ArgumentCaptor<List<UpdateRateRequestDto>> ratesCaptor;
+class ExchangeGeneratorServiceTest {
 
-    private ExchangeGeneratorService exchangeGeneratorService;
+    @Mock
+    private KafkaMessageProducer<ExchangeRateUpdateRequested> kafkaProducer;
+
+    @Captor
+    private ArgumentCaptor<ExchangeRateUpdateRequested> eventCaptor;
+
+    @Captor
+    private ArgumentCaptor<String> keyCaptor;
+
+    private ExchangeGeneratorService service;
 
     @BeforeEach
     void setUp() {
-        exchangeGeneratorService = new ExchangeGeneratorService(exchangeClient);
+        service = new ExchangeGeneratorService(kafkaProducer);
     }
 
     @Test
-    void shouldGenerateAndSendRatesWhenUpdateRatesCalled() {
-        exchangeGeneratorService.updateRates();
+    void shouldGenerateAndPublishRatesToKafka() {
+        service.updateRates();
 
-        verify(exchangeClient, times(1)).updateRates(ratesCaptor.capture());
+        verify(kafkaProducer, times(3))
+                .publish(eq("exchange-requests"), anyString(), eventCaptor.capture());
 
-        final var captureRates = ratesCaptor.getValue();
+        List<ExchangeRateUpdateRequested> publishedEvents = eventCaptor.getAllValues();
 
-        assertThat(captureRates).hasSize(3);
+        assertThat(publishedEvents).hasSize(3);
 
-        final var rateRub = captureRates.stream()
-                .filter(r -> r.getCurrency().equals(Currency.RUB))
-                .findFirst()
-                .orElseThrow();
-        assertThat(rateRub.getValue()).isEqualByComparingTo(BigDecimal.ONE);
+        var rubEvent = findByCurrency(publishedEvents, Currency.RUB);
+        assertThat(rubEvent.value()).isEqualByComparingTo(BigDecimal.ONE);
 
-        final var rateUSD = captureRates.stream()
-                .filter(r -> r.getCurrency().equals(Currency.RUB))
-                .findFirst()
-                .orElseThrow();
-        assertThat(rateUSD.getValue()).isBetween(BigDecimal.valueOf(0.011), BigDecimal.valueOf(10.011));
+        var eurEvent = findByCurrency(publishedEvents, Currency.EUR);
+        assertThat(eurEvent.value())
+                .isGreaterThanOrEqualTo(BigDecimal.valueOf(0.011))
+                .isLessThanOrEqualTo(BigDecimal.valueOf(10.011));
 
+        var usdEvent = findByCurrency(publishedEvents, Currency.USD);
+        assertThat(usdEvent.value())
+                .isGreaterThanOrEqualTo(BigDecimal.valueOf(0.013))
+                .isLessThanOrEqualTo(BigDecimal.valueOf(10.013));
+
+        verify(kafkaProducer).publish(eq("exchange-requests"), eq("RUB"), any());
+        verify(kafkaProducer).publish(eq("exchange-requests"), eq("EUR"), any());
+        verify(kafkaProducer).publish(eq("exchange-requests"), eq("USD"), any());
     }
 
+    private ExchangeRateUpdateRequested findByCurrency(List<ExchangeRateUpdateRequested> events, Currency currency) {
+        return events.stream()
+                .filter(e -> e.currency() == currency)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("No event for currency: " + currency));
+    }
 }

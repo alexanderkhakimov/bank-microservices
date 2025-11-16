@@ -22,4 +22,4 @@ include 'exchange'
 include 'gateway'
 include 'blocker'
 include 'notifications'
-
+include 'bank-kafka-common'

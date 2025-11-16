@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: notifications
+  kafka:
+    bootstrap-servers: kafka.kafka.svc.cluster.local:9092
 
 #  config:
 #    import: "optional:consul:"
@@ -21,6 +23,10 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${ISSUER_URL:http://localhost:8180/realms/bank}
+kafka:
+  topic: notifications
+  group: notifications-group
+
 management:
   endpoints:
     web:

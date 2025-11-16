@@ -5,7 +5,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
     implementation "org.keycloak:keycloak-spring-boot-starter:${keycloakVersion}"
-
+    implementation project(':bank-kafka-common')
 //    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
 //    implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
 

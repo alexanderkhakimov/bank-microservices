@@ -1,6 +1,7 @@
 package com.bank.exchange.model;
 
-import com.bank.exchange.enums.Currency;
+
+import com.bank.kafka.enums.Currency;
 import jakarta.persistence.*;
 import lombok.*;
 

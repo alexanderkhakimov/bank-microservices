@@ -1,6 +1,6 @@
 package com.bank.notifications.controller;
 
-import com.bank.notifications.dto.NotificationsUserRequestDto;
+import com.bank.notifications.event.NotificationsUserRequestDto;
 import com.bank.notifications.service.NotificationsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

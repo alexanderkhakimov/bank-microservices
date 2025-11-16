@@ -4,6 +4,12 @@ server:
 spring:
   application:
     name: exchange
+  kafka:
+    bootstrap-servers: kafka.kafka.svc.cluster.local:9092
+kafka:
+  topic: exchange-requests
+  group: exchange-group
+
   datasource:
     url: jdbc:postgresql://localhost:5432/exchange_db
     username: root

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-pipeline
+  labels:
+    app: logstash
+data:
+  logstash.conf: |
+    input {
+      {{ .Values.pipeline.input | indent 6 }}
+    }
+    
+    filter {
+      {{ .Values.pipeline.filter | indent 6 }}
+    }
+    
+    output {
+      {{ .Values.pipeline.output | indent 6 }}
+    }

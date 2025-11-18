@@ -1,0 +1,70 @@
+replicaCount: 1
+
+image:
+  repository: grafana/grafana
+  tag: "10.0.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+  name: grafana
+
+# Конфигурация Grafana
+config:
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus:9090
+          access: proxy
+          isDefault: true
+
+  dashboards:
+    dashboards.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          updateIntervalSeconds: 10
+          allowUiUpdates: true
+          options:
+            path: /var/lib/grafana/dashboards
+
+# Предустановленные дашборды
+dashboards:
+  spring_boot: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Spring Boot Metrics",
+        "tags": ["spring-boot", "micrometer"],
+        "timezone": "browser",
+        "panels": [],
+        "templating": {
+          "list": []
+        },
+        "refresh": "5s",
+        "schemaVersion": 16,
+        "version": 0,
+        "uid": "spring-boot-metrics"
+      },
+      "overwrite": true
+    }
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+admin:
+  user: admin
+  password: admin

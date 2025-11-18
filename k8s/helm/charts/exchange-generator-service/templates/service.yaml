@@ -5,6 +5,12 @@ metadata:
   namespace: {{ .Values.global.namespace }}
   labels:
     app: {{ .Chart.Name }}
+  annotations:
+    # Аннотации для Prometheus
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/actuator/prometheus"
+    prometheus.io/port: "{{ .Values.service.port }}"
+    prometheus.io/scheme: "http"
 spec:
   type: ClusterIP
   ports:

@@ -1,0 +1,54 @@
+replicaCount: 1
+
+image:
+  repository: docker.elastic.co/logstash/logstash
+  tag: "8.10.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+
+# Конфигурация пайплайна Logstash
+pipeline:
+  input: |
+    kafka {
+      bootstrap_servers => "kafka.kafka:9092"
+      topics => ["logs"]
+      codec => "json"
+    }
+
+  filter: |
+    # Добавляем информацию о Kubernetes
+    if [kubernetes] {
+      mutate {
+        add_field => {
+          "namespace" => "%{[kubernetes][namespace]}"
+          "pod" => "%{[kubernetes][pod_name]}"
+          "container" => "%{[kubernetes][container_name]}"
+        }
+      }
+    }
+    
+    # Парсим trace и span ID для связывания с Zipkin
+    if [traceId] {
+      mutate {
+        add_field => {
+          "[@metadata][traceId]" => "%{traceId}"
+          "[@metadata][spanId]" => "%{spanId}"
+        }
+      }
+    }
+
+  output: |
+    elasticsearch {
+      hosts => ["http://elasticsearch:9200"]
+      index => "logs-%{+YYYY.MM.dd}"
+    }
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "300m"
+  limits:
+    memory: "1Gi"
+    cpu: "600m"

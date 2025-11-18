@@ -26,11 +26,21 @@ spec:
           env:
           - name: SPRING_CONFIG_LOCATION
             value: file:/app/config/application.yaml
+          - name: LOGGING_CONFIG
+            value: file:/app/resources/logback-spring.xml
           volumeMounts:
           - name: config-volume
             mountPath: /app/config
             readOnly: true
+          - name: config-volume
+            mountPath: /app/resources
+            subPath: logback-spring.xml
       volumes:
       - name: config-volume
         configMap:
           name: {{ .Chart.Name }}-config
+          items:
+          - key: application.yaml
+            path: application.yaml
+          - key: logback-spring.xml
+            path: logback-spring.xml

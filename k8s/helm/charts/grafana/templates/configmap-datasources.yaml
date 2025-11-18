@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  labels:
+    app: grafana
+data:
+  datasources.yaml: |
+{{ toYaml .Values.config.datasources | indent 4 }}
+  dashboards.yaml: |
+{{ toYaml .Values.config.dashboards | indent 4 }}

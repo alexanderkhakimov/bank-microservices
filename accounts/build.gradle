@@ -6,11 +6,17 @@ dependencies {
 
     implementation "org.keycloak:keycloak-spring-boot-starter:${keycloakVersion}"
     implementation project(':bank-kafka-common')
-//    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
-//    implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
-
 
     implementation 'org.postgresql:postgresql'
+    // Мониторинг и трейсинг
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+
+    // Логирование в Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'

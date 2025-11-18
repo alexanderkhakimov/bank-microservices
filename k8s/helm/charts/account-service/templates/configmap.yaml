@@ -8,3 +8,5 @@ metadata:
 data:
   application.yaml: |
 {{ .Files.Get "files/application.yaml" | indent 4 }}
+  logback-spring.xml: |
+{{ .Files.Get "files/logback-spring.xml" | indent 4 }}

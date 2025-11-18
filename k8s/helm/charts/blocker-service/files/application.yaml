@@ -9,12 +9,33 @@ server:
         resourceserver:
           jwt:
             issuer-uri: {{ .Values.global.keycloak.issuerUrl }}
-
+    zipkin:
+      base-url: http://zipkin.{{ .Values.global.monitoring.namespace | default "monitoring" }}:9411
+      enabled: true
+    sleuth:
+      sampler:
+        probability: {{ .Values.global.tracing.samplingRate | default 1.0 }}
 management:
   endpoints:
     web:
       exposure:
-        include: "*"
-    endpoint:
-      health:
-        show-details: always
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+    tags:
+      application: {{ .Chart.Name }}
+      environment: {{ .Values.global.environment | default "dev" }}
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId:-},%X{spanId:-}]"

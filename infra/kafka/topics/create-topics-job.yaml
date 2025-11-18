@@ -34,6 +34,15 @@ spec:
                 --config cleanup.policy=delete \
                 --config min.insync.replicas=1 || true
               
+              # ЛОГИ: Топик для логов всех микросервисов
+              kafka-topics.sh --create --if-not-exists \
+                --topic logs \
+                --bootstrap-server $BOOTSTRAP \
+                --partitions 3 \
+                --replication-factor 1 \
+                --config retention.ms=604800000 \
+                --config cleanup.policy=delete || true
+              
               echo "All topics ensured."
           volumeMounts:
             - name: tmp

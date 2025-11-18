@@ -4,8 +4,16 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
-//	implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
-//	implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
+	// Мониторинг и трейсинг
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+
+	// Логирование в Kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 configurations {

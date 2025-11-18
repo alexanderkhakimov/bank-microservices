@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  labels:
+    app: grafana
+data:
+  spring-boot.json: |
+{{ .Values.dashboards.spring_boot | indent 4 }}

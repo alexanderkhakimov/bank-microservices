@@ -1,1 +1,2 @@
-host: "bank.local"
+ingress:
+  host: "bank.local"

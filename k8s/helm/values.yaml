@@ -1,6 +1,11 @@
 global:
   namespace: bank-dev
   springProfiles: "dev"
+  monitoring:
+    namespace: monitoring-dev  # отдельный namespace для мониторинга
+  tracing:
+    samplingRate: 1.0  # 100% для разработки
+  environment: dev
   keycloak:
     issuerUrl: "http://keycloak:8180/realms/bank"
     jwtSetUrl: "http://keycloak:8180/realms/bank/protocol/openid-connect/certs"

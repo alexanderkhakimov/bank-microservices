@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  labels:
+    app: prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: {{ .Values.config.global.scrape_interval }}
+      evaluation_interval: {{ .Values.config.global.evaluation_interval }}
+
+    rule_files:
+      {{- range .Values.config.rule_files }}
+      - {{ . }}
+      {{- end }}
+
+    scrape_configs:
+      {{- range .Values.config.scrape_configs }}
+      - job_name: '{{ .job_name }}'
+        {{- if .kubernetes_sd_configs }}
+        kubernetes_sd_configs:
+        {{- toYaml .kubernetes_sd_configs | nindent 10 }}
+        {{- end }}
+        {{- if .static_configs }}
+        static_configs:
+        {{- toYaml .static_configs | nindent 10 }}
+        {{- end }}
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+          action: keep
+          regex: true
+        - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+          action: replace
+          target_label: __address__
+          regex: (.+)(?::\d+);(\d+)
+          replacement: $1:$2
+        - action: labelmap
+          regex: __meta_kubernetes_service_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: kubernetes_namespace
+        - source_labels: [__meta_kubernetes_service_name]
+          action: replace
+          target_label: kubernetes_name
+      {{- end }}

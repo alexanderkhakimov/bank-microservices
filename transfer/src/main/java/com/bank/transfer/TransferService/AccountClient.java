@@ -4,6 +4,8 @@ import com.bank.transfer.config.properties.ClientProperties;
 import com.bank.transfer.dto.AccountBalanceUpdateRequest;
 import com.bank.transfer.dto.UserAccountDto;
 import com.bank.transfer.exception.TransferOperationException;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -14,11 +16,15 @@ import java.math.BigDecimal;
 @Component
 public class AccountClient {
     private final RestClient restClient;
+    private final Counter accountClientErrors;
 
-    public AccountClient(RestClient.Builder restClient, ClientProperties clientProperties) {
+    public AccountClient(RestClient.Builder restClient, ClientProperties clientProperties, MeterRegistry meterRegistry) {
         this.restClient = restClient
                 .baseUrl(clientProperties.getUserClient().getBaseurl())
                 .build();
+        this.accountClientErrors = Counter.builder("bank.client.account.errors")
+                .description("Account client errors")
+                .register(meterRegistry);
     }
 
     public UserAccountDto getUserAccount(String login) {
@@ -31,30 +37,35 @@ public class AccountClient {
                     .onStatus(status -> status.is4xxClientError(), (request, response) -> {
                         log.error("Клиентская ошибка {} при запросе аккаунта пользователя {}",
                                 response.getStatusCode(), login);
+                        accountClientErrors.increment();
                         throw new TransferOperationException("Клиентская ошибка при запросе аккаунта: " + response.getStatusCode());
                     })
                     .onStatus(status -> status.is5xxServerError(), (request, response) -> {
                         log.error("Серверная ошибка {} при запросе аккаунта пользователя {}",
                                 response.getStatusCode(), login);
+                        accountClientErrors.increment();
                         throw new TransferOperationException("Серверная ошибка при запросе аккаунта: " + response.getStatusCode());
                     })
                     .body(UserAccountDto.class);
 
             if (userAccount == null) {
                 log.warn("Получен null ответ для пользователя {}", login);
+                accountClientErrors.increment();
                 throw new TransferOperationException("Получен пустой ответ для пользователя: " + login);
             }
 
             if (userAccount.balances() == null || userAccount.balances().isEmpty()) {
                 log.warn("У пользователя {} нет счетов или balances=null", login);
+                accountClientErrors.increment();
                 throw new TransferOperationException("У пользователя нет счетов: " + login);
             }
 
             log.info("Успешно получен аккаунт пользователя {}: {}", login, userAccount);
             return userAccount;
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("Неизвестная ошибка при запросе аккаунта пользователя {}: {}", login, e.getMessage(), e);
+            accountClientErrors.increment();
             throw new TransferOperationException("Не удалось получить данные счёта для пользователя: " + login, e);
         }
     }

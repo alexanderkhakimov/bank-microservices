@@ -1,0 +1,90 @@
+{
+  "dashboard": {
+    "title": "Метрики банковских переводов",
+    "tags": ["банк", "переводы"],
+    "panels": [
+      {
+        "id": 1,
+        "title": "Частота запросов на переводы",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "rate(bank_transfer_requests_total[5m])",
+            "legendFormat": "Запросы"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Успешные vs Неудачные переводы",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "rate(bank_transfer_success_total[5m])",
+            "legendFormat": "Успешные"
+          },
+          {
+            "expr": "rate(bank_transfer_failed_total[5m])",
+            "legendFormat": "Неудачные"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Заблокированные подозрительные операции",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "bank_transfer_suspicious_blocked_total",
+            "legendFormat": "Заблокировано"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"value": null, "color": "green"},
+                {"value": 1, "color": "yellow"},
+                {"value": 5, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Время обработки переводов",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "targets": [
+          {
+            "expr": "rate(bank_transfer_processing_time_seconds_sum[5m]) / rate(bank_transfer_processing_time_seconds_count[5m])",
+            "legendFormat": "Среднее время обработки"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Клиентские ошибки счетов",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "rate(bank_client_account_errors_total[5m])",
+            "legendFormat": "Клиентские ошибки счетов"
+          }
+        ]
+      }
+    ],
+    "refresh": "10s"
+  }
+}

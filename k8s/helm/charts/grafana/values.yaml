@@ -36,26 +36,6 @@ config:
           options:
             path: /var/lib/grafana/dashboards
 
-# Предустановленные дашборды
-dashboards:
-  spring_boot: |
-    {
-      "dashboard": {
-        "id": null,
-        "title": "Spring Boot Metrics",
-        "tags": ["spring-boot", "micrometer"],
-        "timezone": "browser",
-        "panels": [],
-        "templating": {
-          "list": []
-        },
-        "refresh": "5s",
-        "schemaVersion": 16,
-        "version": 0,
-        "uid": "spring-boot-metrics"
-      },
-      "overwrite": true
-    }
 
 resources:
   requests:

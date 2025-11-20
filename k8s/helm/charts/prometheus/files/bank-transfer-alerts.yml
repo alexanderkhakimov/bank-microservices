@@ -1,0 +1,38 @@
+groups:
+  - name: bank-transfer-alerts
+    rules:
+      - alert: HighTransferFailureRate
+        expr: rate(bank_transfer_failed_total[10m]) / (rate(bank_transfer_success_total[10m]) + rate(bank_transfer_failed_total[10m])) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Высокий процент неудачных переводов"
+          description: "Процент неудачных переводов составляет {{ printf \"%.2f\" $value }}%"
+
+      - alert: SuspiciousActivitySpike
+        expr: rate(bank_transfer_suspicious_blocked_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Заблокирована подозрительная операция"
+          description: "Обнаружен и заблокирован подозрительный перевод"
+
+      - alert: HighAccountClientErrors
+        expr: rate(bank_client_account_errors_total[5m]) > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокий уровень клиентских ошибок счетов"
+          description: "Уровень клиентских ошибок счетов составляет {{ printf \"%.2f\" $value }} в минуту"
+
+      - alert: SlowTransferProcessing
+        expr: histogram_quantile(0.95, rate(bank_transfer_processing_time_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Медленная обработка переводов"
+          description: "95-й процентиль времени обработки переводов составляет {{ printf \"%.2f\" $value }} секунд"

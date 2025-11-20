@@ -67,9 +67,11 @@ pipeline:
 
 # Конфигурация Logstash
 config:
-  pipeline.workers: 2
-  pipeline.batch.size: 125
-  pipeline.batch.delay: 50
+  pipeline:
+    workers: 2
+    batch:
+      size: 125
+      delay: 50
 
 resources:
   requests:

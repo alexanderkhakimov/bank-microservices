@@ -7,13 +7,13 @@ metadata:
 data:
   logstash.conf: |
     input {
-      {{ .Values.pipeline.input | indent 6 }}
+    {{ .Values.pipeline.input | indent 4 }}
     }
     
     filter {
-      {{ .Values.pipeline.filter | indent 6 }}
+    {{ .Values.pipeline.filter | indent 4 }}
     }
     
     output {
-      {{ .Values.pipeline.output | indent 6 }}
+    {{ .Values.pipeline.output | indent 4 }}
     }

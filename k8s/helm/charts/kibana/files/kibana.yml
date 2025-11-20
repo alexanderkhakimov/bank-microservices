@@ -1,0 +1,23 @@
+server:
+  name: {{ .Values.config.server.name | default "kibana" }}
+  host: {{ .Values.config.server.host | default "0.0.0.0" }}
+  port: 5601
+
+elasticsearch:
+  hosts: {{ toJson (.Values.config.elasticsearch.hosts | default list) }}
+
+xpack:
+  security:
+    enabled: {{ .Values.config.xpack.security.enabled | default false }}
+  fleet:
+    enabled: {{ .Values.config.xpack.fleet.enabled | default false }}
+
+monitoring:
+  ui:
+    container:
+      elasticsearch:
+        enabled: true
+
+logging:
+  root:
+    level: {{ .Values.config.logging.level | default "info" }}

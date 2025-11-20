@@ -30,3 +30,4 @@ resources:
 storage:
   enabled: true
   size: 10Gi
+  storageClassName: ""

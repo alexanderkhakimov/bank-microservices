@@ -7,6 +7,8 @@ image:
 
 service:
   type: ClusterIP
+  port: 9600
+  name: logstash
 
 # Конфигурация пайплайна Logstash
 pipeline:
@@ -15,6 +17,8 @@ pipeline:
       bootstrap_servers => "kafka.kafka:9092"
       topics => ["logs"]
       codec => "json"
+      group_id => "logstash"
+      consumer_threads => 2
     }
 
   filter: |
@@ -38,12 +42,34 @@ pipeline:
         }
       }
     }
+    
+    # Парсим timestamp
+    date {
+      match => [ "timestamp", "ISO8601" ]
+    }
+    
+    # Удаляем поля которые не нужны
+    mutate {
+      remove_field => [ "@version", "host" ]
+    }
 
   output: |
     elasticsearch {
       hosts => ["http://elasticsearch:9200"]
       index => "logs-%{+YYYY.MM.dd}"
+      document_id => "%{[@metadata][fingerprint]}"
     }
+    
+    # Дублируем в stdout для отладки
+    stdout {
+      codec => rubydebug
+    }
+
+# Конфигурация Logstash
+config:
+  pipeline.workers: 2
+  pipeline.batch.size: 125
+  pipeline.batch.delay: 50
 
 resources:
   requests:

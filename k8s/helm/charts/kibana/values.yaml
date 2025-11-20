@@ -15,6 +15,9 @@ config:
   elasticsearch.hosts: ["http://elasticsearch:9200"]
   server.name: kibana
   server.host: "0.0.0.0"
+  # Дополнительные настройки для отключения security
+  xpack.security.enabled: "false"
+  xpack.fleet.enabled: "false"
 
 resources:
   requests:

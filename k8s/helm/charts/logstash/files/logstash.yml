@@ -1,0 +1,12 @@
+http:
+  host: "0.0.0.0"
+log:
+  level: {{ .Values.config.log.level | default "info" }}
+pipeline:
+  workers: {{ .Values.config.pipeline.workers | default 2 }}
+  batch:
+    size: {{ .Values.config.pipeline.batch.size | default 125 }}
+    delay: {{ .Values.config.pipeline.batch.delay | default 50 }}
+xpack:
+  monitoring:
+    enabled: {{ .Values.config.monitoring.enabled | default false }}
